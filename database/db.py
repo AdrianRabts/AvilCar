@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+import json
 
 # ========================
 # RUTAS Y CONEXIÓN
@@ -10,12 +11,6 @@ def _db_path():
     return str(base / "inventario.db")
 
 def get_connection():
-    """
-    Devuelve conexión SQLite con:
-    - FK activadas
-    - Row factory tipo dict
-    - WAL + synchronous NORMAL
-    """
     conn = sqlite3.connect(
         _db_path(),
         timeout=30,
@@ -26,7 +21,7 @@ def get_connection():
     try:
         conn.execute("PRAGMA journal_mode = WAL")
         conn.execute("PRAGMA synchronous = NORMAL")
-        conn.execute("PRAGMA cache_size = 10000")  # mejora lectura
+        conn.execute("PRAGMA cache_size = 10000")
     except Exception:
         pass
     return conn
@@ -45,9 +40,6 @@ def _column_exists(cursor, table, column_name):
         return False
 
 def _ensure_column(cursor, table, column_def, column_name):
-    """
-    Añade columna si no existe. Evitar constraints complejas aquí.
-    """
     if not _column_exists(cursor, table, column_name):
         cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column_def}")
 
@@ -58,16 +50,9 @@ def create_tables():
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Metadata (versionamiento)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS metadata (
-            key TEXT PRIMARY KEY,
-            value TEXT
-        )
-    """)
-    cursor.execute("INSERT OR IGNORE INTO metadata(key, value) VALUES ('version', '2')")
-
-    # Categorías
+    # ========================
+    # TABLAS BASE
+    # ========================
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS categorias (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,7 +60,6 @@ def create_tables():
     )
     """)
 
-    # Proveedores
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS proveedores (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,7 +68,6 @@ def create_tables():
     )
     """)
 
-    # Productos
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS productos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,8 +85,7 @@ def create_tables():
         FOREIGN KEY(proveedor_id) REFERENCES proveedores(id) ON DELETE SET NULL
     )
     """)
-
-    # Trigger automático para actualizar `updated_at`
+    # Trigger updated_at
     cursor.execute("""
     CREATE TRIGGER IF NOT EXISTS trg_productos_updated_at
     AFTER UPDATE ON productos
@@ -113,7 +95,6 @@ def create_tables():
     END;
     """)
 
-    # Compras y compra_items
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS compras (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -123,6 +104,7 @@ def create_tables():
         FOREIGN KEY(proveedor_id) REFERENCES proveedores(id) ON DELETE SET NULL
     )
     """)
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS compra_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -135,7 +117,6 @@ def create_tables():
     )
     """)
 
-    # Movimientos de stock
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS movimientos_stock (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,11 +125,20 @@ def create_tables():
         tipo TEXT NOT NULL CHECK(tipo IN ('entrada','salida')),
         motivo TEXT,
         fecha TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE CASCADE
     )
     """)
+    cursor.execute("""
+    CREATE TRIGGER IF NOT EXISTS trg_movimientos_updated_at
+    AFTER UPDATE ON movimientos_stock
+    FOR EACH ROW
+    BEGIN
+        UPDATE movimientos_stock SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
+    END;
+    """)
 
-    # Ventas
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS ventas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,9 +147,70 @@ def create_tables():
         total REAL NOT NULL,
         fecha TEXT NOT NULL,
         cliente TEXT DEFAULT 'Desconocido',
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE RESTRICT
     )
     """)
+    cursor.execute("""
+    CREATE TRIGGER IF NOT EXISTS trg_ventas_updated_at
+    AFTER UPDATE ON ventas
+    FOR EACH ROW
+    BEGIN
+        UPDATE ventas SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
+    END;
+    """)
+
+    # ========================
+    # TABLA DE AUDITORÍA GLOBAL
+    # ========================
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS auditoria (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tabla TEXT NOT NULL,
+        operacion TEXT NOT NULL CHECK(operacion IN ('INSERT','UPDATE','DELETE')),
+        registro_id INTEGER,
+        datos_antes TEXT,
+        datos_despues TEXT,
+        usuario TEXT,
+        fecha TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # ========================
+    # TRIGGERS DE AUDITORÍA
+    # ========================
+    for tabla in ["productos", "ventas", "movimientos_stock"]:
+        # INSERT
+        cursor.execute(f"""
+        CREATE TRIGGER IF NOT EXISTS trg_{tabla}_insert_auditoria
+        AFTER INSERT ON {tabla}
+        FOR EACH ROW
+        BEGIN
+            INSERT INTO auditoria(tabla, operacion, registro_id, datos_antes, datos_despues, usuario)
+            VALUES ('{tabla}', 'INSERT', NEW.id, NULL, json(NEW), 'Sistema');
+        END;
+        """)
+        # UPDATE
+        cursor.execute(f"""
+        CREATE TRIGGER IF NOT EXISTS trg_{tabla}_update_auditoria
+        AFTER UPDATE ON {tabla}
+        FOR EACH ROW
+        BEGIN
+            INSERT INTO auditoria(tabla, operacion, registro_id, datos_antes, datos_despues, usuario)
+            VALUES ('{tabla}', 'UPDATE', NEW.id, json(OLD), json(NEW), 'Sistema');
+        END;
+        """)
+        # DELETE
+        cursor.execute(f"""
+        CREATE TRIGGER IF NOT EXISTS trg_{tabla}_delete_auditoria
+        AFTER DELETE ON {tabla}
+        FOR EACH ROW
+        BEGIN
+            INSERT INTO auditoria(tabla, operacion, registro_id, datos_antes, datos_despues, usuario)
+            VALUES ('{tabla}', 'DELETE', OLD.id, json(OLD), NULL, 'Sistema');
+        END;
+        """)
 
     # ========================
     # ÍNDICES
@@ -171,4 +222,3 @@ def create_tables():
 
     conn.commit()
     conn.close()
-    return True
