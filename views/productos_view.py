@@ -36,7 +36,7 @@ STYLE_DANGER: str = "Danger.TButton"
 STYLE_DEFAULT: str = "Default.TButton"
 
 # Secciones disponibles (puedes editar esta lista a tu gusto)
-SECCIONES: list[str] = ["Ninguno", "A", "B", "C", "D"]
+SECCIONES: list[str] = ["Ninguno", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
 # Columnas de la tabla (SIN mínimo stock)
 COLUMNS: tuple[str, ...] = (
@@ -856,21 +856,21 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         for f in (default_font, text_font, fixed_font, heading_font, icon_font, menu_font, small_font):
             size = f.cget("size")
             try:
-                f.configure(size=int(size) + 2)
+                f.configure(size=int(size) + 6)
             except Exception:
                 pass
     except Exception:
         pass
 
-    estilo.configure("TButton", padding=(10, 8))
+    estilo.configure("TButton", padding=(12, 10))
     try:
         estilo.configure(STYLE_PRIMARY, foreground="white", background="#0078D7")
         estilo.map(STYLE_PRIMARY, background=[("active", "#0a66c2")])
         estilo.configure(STYLE_DANGER, foreground="white", background="#D9534F")
         estilo.map(STYLE_DANGER, background=[("active", "#c9302c")])
         estilo.configure(STYLE_DEFAULT, foreground="black")
-        estilo.configure("Treeview", rowheight=26)
-        estilo.configure("Treeview.Heading", font=("Segoe UI", 11, "bold"))
+        estilo.configure("Treeview", rowheight=30)
+        estilo.configure("Treeview.Heading", font=("Segoe UI", 15, "bold"))
     except Exception:
         pass
 
@@ -905,12 +905,15 @@ def ventana_productos(parent: tk.Misc | None = None) -> None:
         container = toplevel
 
     # Permitir resize y establecer tamaño inicial
+    # Permitir resize y establecer tamaño inicial
     try:
-        container.geometry("1366x800")  # type: ignore[attr-defined]
-        container.minsize(1000, 640)    # type: ignore[attr-defined]
-        container.resizable(True, True) # type: ignore[attr-defined]
+        container.state("zoomed")        # se abre maximizada
+        container.geometry("1900x1080")
+        container.minsize(1200, 720)     # tamaño mínimo
+        container.resizable(True, True)  # se puede redimensionar
     except Exception:
         pass
+
 
     _apply_fonts_and_styles(container)
 

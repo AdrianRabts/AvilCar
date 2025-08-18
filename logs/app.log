@@ -148,3 +148,44 @@ TypeError: ventana_ventas() takes 0 positional arguments but 1 was given
 2025-08-18 09:25:53,567 [INFO] root: Aplicación iniciada.
 2025-08-18 09:25:53,580 [INFO] root: Esquema de base de datos creado/migrado correctamente.
 2025-08-18 09:32:35,887 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:35:14,568 [INFO] root: Aplicación iniciada.
+2025-08-18 09:35:14,583 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:38:34,922 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:40:12,947 [INFO] root: Aplicación iniciada.
+2025-08-18 09:40:12,958 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:40:18,045 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:40:30,295 [INFO] root: Aplicación iniciada.
+2025-08-18 09:40:30,306 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:40:50,094 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:43:36,415 [INFO] root: Aplicación iniciada.
+2025-08-18 09:43:36,424 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:44:28,179 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:44:31,908 [INFO] root: Aplicación iniciada.
+2025-08-18 09:44:31,919 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:44:41,071 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:45:02,331 [INFO] root: Aplicación iniciada.
+2025-08-18 09:45:02,342 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:45:29,687 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:46:54,443 [INFO] root: Aplicación iniciada.
+2025-08-18 09:46:54,454 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:50:13,278 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:50:16,361 [INFO] root: Aplicación iniciada.
+2025-08-18 09:50:16,373 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:50:27,367 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:53:49,527 [INFO] root: Aplicación iniciada.
+2025-08-18 09:53:49,550 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:54:19,518 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:54:27,967 [INFO] root: Aplicación iniciada.
+2025-08-18 09:54:27,979 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:54:42,166 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:55:40,283 [INFO] root: Aplicación iniciada.
+2025-08-18 09:55:40,295 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:55:51,811 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:56:13,245 [INFO] root: Aplicación iniciada.
+2025-08-18 09:56:13,257 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:56:24,615 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:56:36,025 [INFO] root: Aplicación iniciada.
+2025-08-18 09:56:36,038 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 09:56:46,432 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 09:59:01,383 [INFO] root: Aplicación iniciada.
+2025-08-18 09:59:01,393 [INFO] root: Esquema de base de datos creado/migrado correctamente.
