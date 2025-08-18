@@ -486,3 +486,15 @@ Traceback (most recent call last):
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _tkinter.TclError: expected floating-point number but got ""
 2025-08-18 14:49:57,427 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 15:03:49,636 [INFO] root: Aplicación iniciada.
+2025-08-18 15:03:49,657 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 15:04:05,868 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 15:21:58,136 [INFO] root: Aplicación iniciada.
+2025-08-18 15:21:58,165 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 15:22:11,350 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 15:27:04,500 [INFO] root: Aplicación iniciada.
+2025-08-18 15:27:04,501 [ERROR] root: Error al crear/migrar esquema
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 301, in main
+    create_tables(DB_PATH)
+TypeError: create_tables() takes 0 positional arguments but 1 was given

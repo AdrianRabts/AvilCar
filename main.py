@@ -14,8 +14,8 @@ from views.reportes_view import ventana_reportes
 
 # ======================== CONSTANTES ========================
 APP_NAME = "AvilCar - Gestión de Inventario"
-APP_SIZE = "1280x800"  # antes: 900x600
-START_MAXIMIZED = True  # maximizar al iniciar (Windows/Linux). En macOS usa fullscreen F11
+APP_SIZE = "1280x800"
+START_MAXIMIZED = True
 
 PRIMARY_COLOR = "#eb257b"
 HOVER_COLOR = "#1e40af"
@@ -27,11 +27,28 @@ BTN_FONT = ("Segoe UI", 13, "bold")
 TITLE_FONT = ("Segoe UI", 26, "bold")
 FOOTER_FONT = ("Segoe UI", 9, "italic")
 
+# ======================== RUTAS ========================
+def resource_path(relative_path):
+    """
+    Retorna la ruta absoluta del recurso.
+    Compatible con PyInstaller (.exe) o desarrollo normal.
+    """
+    try:
+        # PyInstaller crea un folder temporal _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# Rutas globales de recursos
+DB_PATH = resource_path("database/inventario.db")
+ASSETS_PATH = resource_path("assets")
+
 # ======================== LOGGING ========================
 def setup_logging():
-    os.makedirs("logs", exist_ok=True)
+    os.makedirs(resource_path("logs"), exist_ok=True)
     handlers = [
-        RotatingFileHandler("logs/app.log", maxBytes=1_000_000, backupCount=3, encoding="utf-8"),
+        RotatingFileHandler(resource_path("logs/app.log"), maxBytes=1_000_000, backupCount=3, encoding="utf-8"),
         logging.StreamHandler(sys.stdout),
     ]
     logging.basicConfig(
@@ -46,7 +63,6 @@ def enable_high_dpi_pre_root():
     if sys.platform.startswith("win"):
         try:
             import ctypes
-            # 2 = Per-Monitor DPI Aware v2 (si no, cae a 1)
             try:
                 ctypes.windll.shcore.SetProcessDpiAwareness(2)
             except Exception:
@@ -69,7 +85,6 @@ def _auto_scaling(root: tk.Tk):
 
 def init_style(root: tk.Tk):
     _auto_scaling(root)
-
     style = ttk.Style(root)
     try:
         style.theme_use("clam")
@@ -77,7 +92,6 @@ def init_style(root: tk.Tk):
         logging.warning("Tema clam no disponible, usando por defecto.")
     root.configure(bg=BG_COLOR)
 
-    # Botón moderno
     style.configure(
         "Modern.TButton",
         padding=16,
@@ -93,15 +107,10 @@ def init_style(root: tk.Tk):
         foreground=[("disabled", "#9ca3af")],
         relief=[("pressed", "flat"), ("!pressed", "flat")]
     )
-
-    # Variantes para hover explícito
     style.configure("Hover.TButton", background=HOVER_COLOR, foreground="white")
-
-    # Labels
     style.configure("Title.TLabel", font=TITLE_FONT, background=BG_COLOR, foreground=TEXT_COLOR)
     style.configure("Footer.TLabel", font=FOOTER_FONT, background=BG_COLOR, foreground=FOOTER_COLOR)
 
-    # Defaults más legibles
     root.option_add("*TButton.focusHighlight", "0")
     root.option_add("*Font", ("Segoe UI", 10))
     root.option_add("*Label.Font", ("Segoe UI", 10))
@@ -114,7 +123,6 @@ class ToolTip:
         self.tipwindow = None
         self._job = None
         self.delay_ms = delay_ms
-
         widget.bind("<Enter>", self._schedule)
         widget.bind("<Leave>", self.hide)
         widget.bind("<Destroy>", self.hide)
@@ -141,11 +149,9 @@ class ToolTip:
             scr_h = self.widget.winfo_screenheight()
         except Exception:
             return
-
         tw = tk.Toplevel(self.widget)
         self.tipwindow = tw
         tw.wm_overrideredirect(True)
-
         label = tk.Label(
             tw, text=self.text, justify="left",
             background="#ffffe0", relief="solid", borderwidth=1,
@@ -153,9 +159,7 @@ class ToolTip:
         )
         label.pack(ipadx=6, ipady=3)
         tw.update_idletasks()
-        w = tw.winfo_reqwidth()
-        h = tw.winfo_reqheight()
-
+        w, h = tw.winfo_reqwidth(), tw.winfo_reqheight()
         x = min(max(0, x), scr_w - w - 4)
         y = min(max(0, y), scr_h - h - 4)
         tw.wm_geometry(f"+{x}+{y}")
@@ -177,26 +181,16 @@ def add_hover_effect(button: ttk.Button):
     button.bind("<Leave>", on_leave)
 
 # ======================== ACCIONES ========================
-def abrir_productos(root: tk.Tk):
+def safe_open(func, root, nombre):
     try:
-        ventana_productos(root)
+        func(root)
     except Exception as e:
-        logging.exception("Error abriendo Productos")
-        messagebox.showerror("Error", f"No se pudo abrir Productos:\n{e}")
+        logging.exception(f"Error abriendo {nombre}")
+        messagebox.showerror("Error", f"No se pudo abrir {nombre}:\n{e}")
 
-def abrir_ventas(root: tk.Tk):
-    try:
-        ventana_ventas(root)
-    except Exception as e:
-        logging.exception("Error abriendo Ventas")
-        messagebox.showerror("Error", f"No se pudo abrir Ventas:\n{e}")
-
-def abrir_reportes(root: tk.Tk):
-    try:
-        ventana_reportes(root)
-    except Exception as e:
-        logging.exception("Error abriendo Reportes")
-        messagebox.showerror("Error", f"No se pudo abrir Reportes:\n{e}")
+def abrir_productos(root): safe_open(ventana_productos, root, "Productos")
+def abrir_ventas(root): safe_open(ventana_ventas, root, "Ventas")
+def abrir_reportes(root): safe_open(ventana_reportes, root, "Reportes")
 
 def confirmar_salida(root: tk.Tk):
     if messagebox.askyesno("Salir", "¿Estás seguro que deseas salir de la aplicación?"):
@@ -206,7 +200,6 @@ def confirmar_salida(root: tk.Tk):
 # ======================== MENÚ ========================
 def build_menubar(root: tk.Tk):
     menubar = tk.Menu(root)
-
     m_archivo = tk.Menu(menubar, tearoff=0)
     m_archivo.add_command(label="Productos\tCtrl+1", command=lambda: abrir_productos(root))
     m_archivo.add_command(label="Ventas\tCtrl+2", command=lambda: abrir_ventas(root))
@@ -227,7 +220,6 @@ def build_menubar(root: tk.Tk):
     m_ayuda.add_command(label="Acerca de", command=lambda: messagebox.showinfo(
         "Acerca de", "AvilCar - Gestión de Inventario\n© 2025 AvilCar Systems"))
     menubar.add_cascade(label="Ayuda", menu=m_ayuda)
-
     root.config(menu=menubar)
 
 # ======================== PANTALLA COMPLETA ========================
@@ -243,7 +235,6 @@ def end_fullscreen(root: tk.Tk, event=None):
 def init_ui(root: tk.Tk):
     container = ttk.Frame(root, padding=40)
     container.pack(fill="both", expand=True)
-
     container.grid_propagate(False)
     container.update_idletasks()
 
@@ -252,7 +243,6 @@ def init_ui(root: tk.Tk):
 
     botones_frame = ttk.Frame(container)
     botones_frame.pack(fill="both", expand=True)
-
     botones_frame.columnconfigure(0, weight=1)
     botones_frame.columnconfigure(1, weight=1)
 
@@ -272,24 +262,13 @@ def init_ui(root: tk.Tk):
     def do_layout(cols: int):
         for child in botones_widgets:
             child.grid_forget()
-        for r in range(0, 6):
-            try:
-                botones_frame.rowconfigure(r, weight=0)
-            except Exception:
-                pass
-
         rows = (len(botones_widgets) + cols - 1) // cols
         for r in range(rows):
             botones_frame.rowconfigure(r, weight=1, minsize=80)
-
         for idx, btn in enumerate(botones_widgets):
             col = idx % cols
             row = idx // cols
-            if cols == 1:
-                btn.grid(row=row, column=0, columnspan=1, padx=18, pady=18, sticky="nsew")
-            else:
-                btn.grid(row=row, column=col, padx=18, pady=18, sticky="nsew")
-
+            btn.grid(row=row, column=col, padx=18, pady=18, sticky="nsew")
         for c in range(cols):
             botones_frame.columnconfigure(c, weight=1)
 
@@ -309,7 +288,6 @@ def init_ui(root: tk.Tk):
     botones_frame.bind("<Configure>", on_resize)
 
     ttk.Separator(container, orient='horizontal').pack(fill='x', pady=(30, 10))
-
     status = ttk.Frame(container)
     status.pack(fill="x")
     lbl_left = ttk.Label(
@@ -324,7 +302,6 @@ def init_ui(root: tk.Tk):
 # ======================== MAIN ========================
 def main():
     setup_logging()
-
     try:
         create_tables()
         migrate_schema()
@@ -347,19 +324,22 @@ def main():
     build_menubar(root)
     init_ui(root)
 
+    # Atajos
     root.bind("<Control-Key-1>", lambda e: abrir_productos(root))
     root.bind("<Control-Key-2>", lambda e: abrir_ventas(root))
     root.bind("<Control-Key-3>", lambda e: abrir_reportes(root))
-    root.bind("<Control-q>",     lambda e: confirmar_salida(root))
-    root.bind("<F11>",           lambda e: toggle_fullscreen(root))
-    root.bind("<Escape>",        lambda e: end_fullscreen(root))
+    root.bind("<Control-q>", lambda e: confirmar_salida(root))
+    root.bind("<F11>", lambda e: toggle_fullscreen(root))
+    root.bind("<Escape>", lambda e: end_fullscreen(root))
 
+    # Maximizado inicial
     try:
         if START_MAXIMIZED and sys.platform.startswith(("win", "linux")):
             root.state("zoomed")
     except Exception:
         pass
 
+    # Captura global de errores
     def report_callback_exception(exc, val, tb):
         logging.exception("Error no controlado", exc_info=(exc, val, tb))
         try:
