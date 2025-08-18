@@ -908,7 +908,7 @@ def ventana_productos(parent: tk.Misc | None = None) -> None:
     # Permitir resize y establecer tamaño inicial
     try:
         container.state("zoomed")        # se abre maximizada
-        container.geometry("1900x1080")
+        container.geometry("1900x900")
         container.minsize(1200, 720)     # tamaño mínimo
         container.resizable(True, True)  # se puede redimensionar
     except Exception:

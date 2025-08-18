@@ -336,3 +336,153 @@ AttributeError: 'SalesView' object has no attribute '_clear_filters'
 2025-08-18 13:33:32,491 [INFO] root: Aplicación iniciada.
 2025-08-18 13:33:32,501 [INFO] root: Esquema de base de datos creado/migrado correctamente.
 2025-08-18 13:34:33,532 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:09:39,561 [INFO] root: Aplicación iniciada.
+2025-08-18 14:09:39,596 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:10:59,822 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:16:58,310 [INFO] root: Aplicación iniciada.
+2025-08-18 14:16:58,338 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:22:43,491 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:22:46,681 [INFO] root: Aplicación iniciada.
+2025-08-18 14:22:46,696 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:24:33,078 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:24:46,879 [INFO] root: Aplicación iniciada.
+2025-08-18 14:24:46,894 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:31:22,652 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:31:28,976 [INFO] root: Aplicación iniciada.
+2025-08-18 14:31:28,990 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:32:59,563 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:33:02,838 [INFO] root: Aplicación iniciada.
+2025-08-18 14:33:02,852 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:33:39,044 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:33:42,049 [INFO] root: Aplicación iniciada.
+2025-08-18 14:33:42,062 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:33:57,866 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:34:00,610 [INFO] root: Aplicación iniciada.
+2025-08-18 14:34:00,640 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:34:06,765 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:34:17,181 [INFO] root: Aplicación iniciada.
+2025-08-18 14:34:17,199 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:39:23,113 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 14:39:26,071 [INFO] root: Aplicación iniciada.
+2025-08-18 14:39:26,088 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 14:48:30,412 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 347, in <lambda>
+    w.bind("<KeyRelease>", lambda e: self._recalc_totals())
+                                     ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:48:37,951 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 347, in <lambda>
+    w.bind("<KeyRelease>", lambda e: self._recalc_totals())
+                                     ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:48:46,275 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 347, in <lambda>
+    w.bind("<KeyRelease>", lambda e: self._recalc_totals())
+                                     ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:48:49,114 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:48:52,290 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 358, in <lambda>
+    w.bind("<KeyRelease>", lambda e: self._recalc_totals())
+                                     ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:48:58,769 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:49:05,660 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 358, in <lambda>
+    w.bind("<KeyRelease>", lambda e: self._recalc_totals())
+                                     ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:49:09,739 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 324, in <lambda>
+    ttk.Button(actions, text="+", command=lambda: self._cart_incdec(+1)).pack(side="left")
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 609, in _cart_incdec
+    self._cart_add(pid, delta)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 579, in _cart_add
+    self._cart_refresh()
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 622, in _cart_refresh
+    self._recalc_totals()
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 635, in _recalc_totals
+    d_val = float(self.desc_value_var.get() or 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 618, in get
+    return self._tk.getdouble(self._tk.globalgetvar(self._name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: expected floating-point number but got ""
+2025-08-18 14:49:57,427 [INFO] root: Aplicación cerrada por usuario.
