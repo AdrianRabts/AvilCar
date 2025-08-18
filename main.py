@@ -1,41 +1,75 @@
+# C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py
+
 import logging
+from logging.handlers import RotatingFileHandler
+import os
+import sys
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from database.db import create_tables
+from database.db import create_tables, migrate_schema
 from views.productos_view import ventana_productos
 from views.ventas_view import ventana_ventas
 from views.reportes_view import ventana_reportes
 
 # ======================== CONSTANTES ========================
 APP_NAME = "AvilCar - Gestión de Inventario"
-APP_SIZE = "550x450"
-PRIMARY_COLOR = "#2563eb"
+APP_SIZE = "1280x800"  # antes: 900x600
+START_MAXIMIZED = True  # maximizar al iniciar (Windows/Linux). En macOS usa fullscreen F11
+
+PRIMARY_COLOR = "#eb257b"
 HOVER_COLOR = "#1e40af"
 PRESSED_COLOR = "#1c3aa9"
 BG_COLOR = "#f3f4f6"
 TEXT_COLOR = "#111827"
 FOOTER_COLOR = "#6b7280"
-BTN_FONT = ("Segoe UI", 12, "bold")
-TITLE_FONT = ("Segoe UI", 18, "bold")
+BTN_FONT = ("Segoe UI", 13, "bold")
+TITLE_FONT = ("Segoe UI", 26, "bold")
 FOOTER_FONT = ("Segoe UI", 9, "italic")
-BTN_WIDTH = 30
-BTN_HEIGHT = 2
 
 # ======================== LOGGING ========================
 def setup_logging():
+    os.makedirs("logs", exist_ok=True)
+    handlers = [
+        RotatingFileHandler("logs/app.log", maxBytes=1_000_000, backupCount=3, encoding="utf-8"),
+        logging.StreamHandler(sys.stdout),
+    ]
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        handlers=[
-            logging.FileHandler("app.log", encoding="utf-8"),
-            logging.StreamHandler()
-        ]
+        handlers=handlers,
     )
     logging.info("Aplicación iniciada.")
 
+# ======================== DPI (PRE-ROOT) ========================
+def enable_high_dpi_pre_root():
+    if sys.platform.startswith("win"):
+        try:
+            import ctypes
+            # 2 = Per-Monitor DPI Aware v2 (si no, cae a 1)
+            try:
+                ctypes.windll.shcore.SetProcessDpiAwareness(2)
+            except Exception:
+                ctypes.windll.shcore.SetProcessDpiAwareness(1)
+        except Exception:
+            pass
+
 # ======================== ESTILOS ========================
+def _auto_scaling(root: tk.Tk):
+    try:
+        h = root.winfo_screenheight()
+        if h >= 1440:
+            root.tk.call("tk", "scaling", 1.6)
+        elif h >= 1080:
+            root.tk.call("tk", "scaling", 1.3)
+        else:
+            root.tk.call("tk", "scaling", 1.1)
+    except Exception:
+        pass
+
 def init_style(root: tk.Tk):
+    _auto_scaling(root)
+
     style = ttk.Style(root)
     try:
         style.theme_use("clam")
@@ -43,9 +77,10 @@ def init_style(root: tk.Tk):
         logging.warning("Tema clam no disponible, usando por defecto.")
     root.configure(bg=BG_COLOR)
 
+    # Botón moderno
     style.configure(
         "Modern.TButton",
-        padding=12,
+        padding=16,
         font=BTN_FONT,
         relief="flat",
         background=PRIMARY_COLOR,
@@ -54,111 +89,285 @@ def init_style(root: tk.Tk):
     )
     style.map(
         "Modern.TButton",
-        background=[("active", HOVER_COLOR), ("pressed", PRESSED_COLOR)],
-        foreground=[("disabled", "#9ca3af")]
+        background=[("active", HOVER_COLOR), ("pressed", PRESSED_COLOR), ("focus", PRIMARY_COLOR)],
+        foreground=[("disabled", "#9ca3af")],
+        relief=[("pressed", "flat"), ("!pressed", "flat")]
     )
 
+    # Variantes para hover explícito
+    style.configure("Hover.TButton", background=HOVER_COLOR, foreground="white")
+
+    # Labels
     style.configure("Title.TLabel", font=TITLE_FONT, background=BG_COLOR, foreground=TEXT_COLOR)
     style.configure("Footer.TLabel", font=FOOTER_FONT, background=BG_COLOR, foreground=FOOTER_COLOR)
 
+    # Defaults más legibles
+    root.option_add("*TButton.focusHighlight", "0")
+    root.option_add("*Font", ("Segoe UI", 10))
+    root.option_add("*Label.Font", ("Segoe UI", 10))
+
 # ======================== TOOLTIP ========================
 class ToolTip:
-    """ Muestra un pequeño tooltip cuando se pasa el mouse por un widget """
-    def __init__(self, widget, text):
+    def __init__(self, widget, text, delay_ms=350):
         self.widget = widget
         self.text = text
         self.tipwindow = None
-        widget.bind("<Enter>", self.show)
-        widget.bind("<Leave>", self.hide)
+        self._job = None
+        self.delay_ms = delay_ms
 
-    def show(self, event=None):
+        widget.bind("<Enter>", self._schedule)
+        widget.bind("<Leave>", self.hide)
+        widget.bind("<Destroy>", self.hide)
+
+    def _schedule(self, _=None):
+        self._cancel()
+        self._job = self.widget.after(self.delay_ms, self.show)
+
+    def _cancel(self):
+        if self._job:
+            try:
+                self.widget.after_cancel(self._job)
+            except Exception:
+                pass
+        self._job = None
+
+    def show(self):
         if self.tipwindow or not self.text:
             return
-        x = self.widget.winfo_rootx() + 20
-        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
-        self.tipwindow = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry(f"+{x}+{y}")
-        label = tk.Label(tw, text=self.text, justify='left',
-                         background="#ffffe0", relief='solid', borderwidth=1,
-                         font=("Segoe UI", 9))
-        label.pack(ipadx=5, ipady=2)
+        try:
+            x = self.widget.winfo_rootx() + 12
+            y = self.widget.winfo_rooty() + self.widget.winfo_height() + 6
+            scr_w = self.widget.winfo_screenwidth()
+            scr_h = self.widget.winfo_screenheight()
+        except Exception:
+            return
 
-    def hide(self, event=None):
+        tw = tk.Toplevel(self.widget)
+        self.tipwindow = tw
+        tw.wm_overrideredirect(True)
+
+        label = tk.Label(
+            tw, text=self.text, justify="left",
+            background="#ffffe0", relief="solid", borderwidth=1,
+            font=("Segoe UI", 9)
+        )
+        label.pack(ipadx=6, ipady=3)
+        tw.update_idletasks()
+        w = tw.winfo_reqwidth()
+        h = tw.winfo_reqheight()
+
+        x = min(max(0, x), scr_w - w - 4)
+        y = min(max(0, y), scr_h - h - 4)
+        tw.wm_geometry(f"+{x}+{y}")
+
+    def hide(self, _=None):
+        self._cancel()
         if self.tipwindow:
-            self.tipwindow.destroy()
+            try:
+                self.tipwindow.destroy()
+            except Exception:
+                pass
         self.tipwindow = None
 
-# ======================== HOVER EFECTO ========================
+# ======================== EFECTOS ========================
 def add_hover_effect(button: ttk.Button):
-    # Cambia color de fondo al pasar el mouse usando style temporal
-    original_bg = PRIMARY_COLOR
-    hover_bg = HOVER_COLOR
-    pressed_bg = PRESSED_COLOR
-
-    def on_enter(e):
-        button.configure(style="Hover.TButton")
-    def on_leave(e):
-        button.configure(style="Modern.TButton")
-
-    style = ttk.Style()
-    style.configure("Hover.TButton", background=hover_bg, foreground="white")
-    
+    def on_enter(_): button.configure(style="Hover.TButton")
+    def on_leave(_): button.configure(style="Modern.TButton")
     button.bind("<Enter>", on_enter)
     button.bind("<Leave>", on_leave)
 
-# ======================== UI PRINCIPAL ========================
-def init_ui(root: tk.Tk):
-    frm = ttk.Frame(root, padding=20)
-    frm.pack(fill="both", expand=True)
+# ======================== ACCIONES ========================
+def abrir_productos(root: tk.Tk):
+    try:
+        ventana_productos(root)
+    except Exception as e:
+        logging.exception("Error abriendo Productos")
+        messagebox.showerror("Error", f"No se pudo abrir Productos:\n{e}")
 
-    # Título
-    ttk.Label(frm, text=APP_NAME, style="Title.TLabel").pack(pady=(10, 30))
+def abrir_ventas(root: tk.Tk):
+    try:
+        ventana_ventas(root)
+    except Exception as e:
+        logging.exception("Error abriendo Ventas")
+        messagebox.showerror("Error", f"No se pudo abrir Ventas:\n{e}")
 
-    # Botones principales
-    botones = [
-        ("📦  Productos", ventana_productos, "Abrir ventana de productos"),
-        ("🛒  Ventas", ventana_ventas, "Registrar y ver ventas"),
-        ("📊  Reportes", ventana_reportes, "Ver reportes y estadísticas"),
-        ("🚪  Salir", lambda: confirmar_salida(root), "Cerrar aplicación")
-    ]
+def abrir_reportes(root: tk.Tk):
+    try:
+        ventana_reportes(root)
+    except Exception as e:
+        logging.exception("Error abriendo Reportes")
+        messagebox.showerror("Error", f"No se pudo abrir Reportes:\n{e}")
 
-    for text, cmd, tip in botones:
-        btn = ttk.Button(frm, text=text, style="Modern.TButton", width=BTN_WIDTH, command=cmd)
-        btn.pack(pady=10)
-        add_hover_effect(btn)
-        ToolTip(btn, tip)
-
-    # Separador
-    ttk.Separator(frm, orient='horizontal').pack(fill='x', pady=(20, 10))
-    # Footer
-    ttk.Label(frm, text="© 2025 AvilCar Systems", style="Footer.TLabel").pack()
-
-# ======================== CONFIRMAR SALIDA ========================
 def confirmar_salida(root: tk.Tk):
     if messagebox.askyesno("Salir", "¿Estás seguro que deseas salir de la aplicación?"):
         logging.info("Aplicación cerrada por usuario.")
         root.destroy()
 
+# ======================== MENÚ ========================
+def build_menubar(root: tk.Tk):
+    menubar = tk.Menu(root)
+
+    m_archivo = tk.Menu(menubar, tearoff=0)
+    m_archivo.add_command(label="Productos\tCtrl+1", command=lambda: abrir_productos(root))
+    m_archivo.add_command(label="Ventas\tCtrl+2", command=lambda: abrir_ventas(root))
+    m_archivo.add_command(label="Reportes\tCtrl+3", command=lambda: abrir_reportes(root))
+    m_archivo.add_separator()
+    m_archivo.add_command(label="Salir\tCtrl+Q", command=lambda: confirmar_salida(root))
+    menubar.add_cascade(label="Archivo", menu=m_archivo)
+
+    m_ver = tk.Menu(menubar, tearoff=0)
+    m_ver.add_command(label="Maximizar", command=lambda: root.state("zoomed"))
+    m_ver.add_command(label="Restaurar", command=lambda: root.state("normal"))
+    m_ver.add_separator()
+    m_ver.add_command(label="Pantalla completa\tF11", command=lambda: toggle_fullscreen(root))
+    m_ver.add_command(label="Salir de pantalla completa\tEsc", command=lambda: end_fullscreen(root))
+    menubar.add_cascade(label="Ver", menu=m_ver)
+
+    m_ayuda = tk.Menu(menubar, tearoff=0)
+    m_ayuda.add_command(label="Acerca de", command=lambda: messagebox.showinfo(
+        "Acerca de", "AvilCar - Gestión de Inventario\n© 2025 AvilCar Systems"))
+    menubar.add_cascade(label="Ayuda", menu=m_ayuda)
+
+    root.config(menu=menubar)
+
+# ======================== PANTALLA COMPLETA ========================
+def toggle_fullscreen(root: tk.Tk, event=None):
+    root.is_fullscreen = not getattr(root, "is_fullscreen", False)
+    root.attributes("-fullscreen", root.is_fullscreen)
+
+def end_fullscreen(root: tk.Tk, event=None):
+    root.is_fullscreen = False
+    root.attributes("-fullscreen", False)
+
+# ======================== UI PRINCIPAL ========================
+def init_ui(root: tk.Tk):
+    container = ttk.Frame(root, padding=40)
+    container.pack(fill="both", expand=True)
+
+    container.grid_propagate(False)
+    container.update_idletasks()
+
+    title = ttk.Label(container, text=APP_NAME, style="Title.TLabel", anchor="center")
+    title.pack(pady=(0, 30))
+
+    botones_frame = ttk.Frame(container)
+    botones_frame.pack(fill="both", expand=True)
+
+    botones_frame.columnconfigure(0, weight=1)
+    botones_frame.columnconfigure(1, weight=1)
+
+    botones_def = [
+        ("📦  Productos", lambda: abrir_productos(root), "Abrir ventana de productos"),
+        ("🛒  Ventas",    lambda: abrir_ventas(root),    "Registrar y ver ventas"),
+        ("📊  Reportes",  lambda: abrir_reportes(root),  "Ver reportes y estadísticas"),
+        ("🚪  Salir",     lambda: confirmar_salida(root),"Cerrar aplicación"),
+    ]
+    botones_widgets = []
+    for text, cmd, tip in botones_def:
+        btn = ttk.Button(botones_frame, text=text, style="Modern.TButton", command=cmd)
+        add_hover_effect(btn)
+        ToolTip(btn, tip, delay_ms=350)
+        botones_widgets.append(btn)
+
+    def do_layout(cols: int):
+        for child in botones_widgets:
+            child.grid_forget()
+        for r in range(0, 6):
+            try:
+                botones_frame.rowconfigure(r, weight=0)
+            except Exception:
+                pass
+
+        rows = (len(botones_widgets) + cols - 1) // cols
+        for r in range(rows):
+            botones_frame.rowconfigure(r, weight=1, minsize=80)
+
+        for idx, btn in enumerate(botones_widgets):
+            col = idx % cols
+            row = idx // cols
+            if cols == 1:
+                btn.grid(row=row, column=0, columnspan=1, padx=18, pady=18, sticky="nsew")
+            else:
+                btn.grid(row=row, column=col, padx=18, pady=18, sticky="nsew")
+
+        for c in range(cols):
+            botones_frame.columnconfigure(c, weight=1)
+
+    botones_frame.current_cols = 2
+    do_layout(botones_frame.current_cols)
+
+    def on_resize(event=None):
+        try:
+            width = botones_frame.winfo_width()
+            desired_cols = 1 if width < 900 else 2
+            if desired_cols != botones_frame.current_cols:
+                botones_frame.current_cols = desired_cols
+                do_layout(desired_cols)
+        except Exception:
+            pass
+
+    botones_frame.bind("<Configure>", on_resize)
+
+    ttk.Separator(container, orient='horizontal').pack(fill='x', pady=(30, 10))
+
+    status = ttk.Frame(container)
+    status.pack(fill="x")
+    lbl_left = ttk.Label(
+        status,
+        text="Listo • F11: Pantalla completa • Esc: Salir de pantalla completa",
+        style="Footer.TLabel"
+    )
+    lbl_left.pack(side="left")
+    lbl_right = ttk.Label(status, text="© 2025 AvilCar Systems", style="Footer.TLabel")
+    lbl_right.pack(side="right")
+
 # ======================== MAIN ========================
 def main():
-    create_tables()
     setup_logging()
 
+    try:
+        create_tables()
+        migrate_schema()
+        logging.info("Esquema de base de datos creado/migrado correctamente.")
+    except Exception as e:
+        logging.exception("Error al crear/migrar esquema")
+        messagebox.showerror("Base de datos", f"No se pudo inicializar la base de datos:\n{e}")
+        return
+
+    enable_high_dpi_pre_root()
     root = tk.Tk()
     root.title(APP_NAME)
     root.geometry(APP_SIZE)
-    root.minsize(500, 400)
+    root.minsize(1024, 700)
+    root.resizable(True, True)
+    root.protocol("WM_DELETE_WINDOW", lambda: confirmar_salida(root))
+    root.is_fullscreen = False
 
     init_style(root)
+    build_menubar(root)
     init_ui(root)
 
-    # Manejo global de errores
-    def report_callback_exception(_, exc, val, tb):
-        logging.exception("Error no controlado", exc_info=(exc, val, tb))
-        messagebox.showerror("Error inesperado", f"Ocurrió un error:\n{val}")
+    root.bind("<Control-Key-1>", lambda e: abrir_productos(root))
+    root.bind("<Control-Key-2>", lambda e: abrir_ventas(root))
+    root.bind("<Control-Key-3>", lambda e: abrir_reportes(root))
+    root.bind("<Control-q>",     lambda e: confirmar_salida(root))
+    root.bind("<F11>",           lambda e: toggle_fullscreen(root))
+    root.bind("<Escape>",        lambda e: end_fullscreen(root))
 
+    try:
+        if START_MAXIMIZED and sys.platform.startswith(("win", "linux")):
+            root.state("zoomed")
+    except Exception:
+        pass
+
+    def report_callback_exception(exc, val, tb):
+        logging.exception("Error no controlado", exc_info=(exc, val, tb))
+        try:
+            messagebox.showerror("Error inesperado", f"Ocurrió un error:\n{val}")
+        except Exception:
+            pass
     root.report_callback_exception = report_callback_exception
+
     root.mainloop()
 
 if __name__ == "__main__":

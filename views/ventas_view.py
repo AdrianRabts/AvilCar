@@ -16,7 +16,7 @@ DEBOUNCE_MS = 220
 ROW_HEIGHT = 26
 
 
-def ventana_ventas():
+def ventana_ventas(root):
     root = tk.Tk()
     root.title("Inventario - Ventas")
     root.geometry("1200x720")
