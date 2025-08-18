@@ -1,51 +1,60 @@
 import datetime
-from typing import Optional, List, Tuple, Dict, Union
+from typing import Optional, List, Dict, Union
 from database.db import get_connection
 from models.movimientos import registrar_movimiento
-
 
 # ====== REGISTRAR VENTA ======
 def registrar_venta(producto_id: int, cantidad: Union[int, float], cliente: Optional[str] = None) -> Dict:
     """
-    Registra una venta de un producto y actualiza el stock.
-    Retorna un diccionario con detalles de la venta y nuevo stock.
+    Registra una venta de un producto, actualiza el stock y guarda el movimiento.
+    Retorna un diccionario con detalles de la venta y el nuevo stock.
     """
     if cantidad <= 0:
         raise ValueError("La cantidad debe ser mayor que cero.")
 
+    # Valor por defecto para cliente si no se envía
+    cliente_val = cliente if cliente else "Desconocido"
+
     with get_connection() as conn:
-        cursor = conn.cursor()
         try:
-            # Obtener precio y stock actual
-            cursor.execute(
-                "SELECT precio, stock FROM productos WHERE id = ?",
-                (producto_id,)
-            )
+            cursor = conn.cursor()
+
+            # Obtener datos del producto
+            cursor.execute("""
+                SELECT precio_venta, stock, nombre 
+                FROM productos 
+                WHERE id = ?
+            """, (producto_id,))
             fila = cursor.fetchone()
             if fila is None:
                 raise ValueError("Producto no encontrado.")
-            precio_unitario, stock_actual = fila
+
+            precio_unitario, stock_actual, nombre_producto = fila
 
             if stock_actual < cantidad:
                 raise ValueError("Stock insuficiente.")
 
-            total = precio_unitario * cantidad
-            fecha = datetime.datetime.now().isoformat(timespec='seconds')
+            total = round(precio_unitario * cantidad, 2)
+            fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            # Actualizar stock
-            nuevo_stock = stock_actual - cantidad
-            cursor.execute(
-                "UPDATE productos SET stock = ? WHERE id = ?",
-                (nuevo_stock, producto_id)
-            )
+            # Actualizar stock solo si hay suficiente (previene condiciones de carrera)
+            cursor.execute("""
+                UPDATE productos 
+                SET stock = stock - ? 
+                WHERE id = ? AND stock >= ?
+            """, (cantidad, producto_id, cantidad))
 
-            # Registrar venta
+            if cursor.rowcount == 0:
+                raise ValueError("Stock insuficiente o producto no encontrado.")
+
+            # Registrar la venta
             cursor.execute("""
                 INSERT INTO ventas (producto_id, cantidad, total, fecha, cliente)
                 VALUES (?, ?, ?, ?, ?)
-            """, (producto_id, cantidad, total, fecha, cliente))
+            """, (producto_id, cantidad, total, fecha, cliente_val))
+            id_venta = cursor.lastrowid
 
-            # Registrar movimiento de salida para trazabilidad
+            # Registrar movimiento
             registrar_movimiento(
                 producto_id, cantidad,
                 tipo="salida",
@@ -54,30 +63,35 @@ def registrar_venta(producto_id: int, cantidad: Union[int, float], cliente: Opti
             )
 
             conn.commit()
+
             return {
+                "id_venta": id_venta,
                 "producto_id": producto_id,
+                "nombre_producto": nombre_producto,
                 "cantidad": cantidad,
                 "total": total,
                 "fecha": fecha,
-                "nuevo_stock": nuevo_stock
+                "nuevo_stock": stock_actual - cantidad,
+                "cliente": cliente_val
             }
-        except Exception as e:
-            conn.rollback()
-            raise e
 
+        except Exception:
+            conn.rollback()
+            raise
 
 # ====== OBTENER VENTAS ======
-def obtener_ventas(limite: Optional[int] = None) -> List[Tuple]:
+def obtener_ventas(limite: Optional[int] = None) -> List[Dict]:
     """
     Devuelve todas las ventas realizadas.
-    Cada fila: (id_venta, producto_id, nombre_producto, cantidad, total, fecha, cliente)
     """
     with get_connection() as conn:
+        conn.row_factory = None  # si quieres usar tu conversión manual
         cursor = conn.cursor()
+
         sql = """
             SELECT v.id,
                    v.producto_id,
-                   p.nombre,
+                   COALESCE(p.nombre, 'Desconocido') AS nombre_producto,
                    v.cantidad,
                    v.total,
                    v.fecha,
@@ -86,11 +100,25 @@ def obtener_ventas(limite: Optional[int] = None) -> List[Tuple]:
             LEFT JOIN productos p ON v.producto_id = p.id
             ORDER BY v.fecha DESC, v.id DESC
         """
+        params = ()
         if limite and limite > 0:
             sql += " LIMIT ?"
-            cursor.execute(sql, (limite,))
-        else:
-            cursor.execute(sql)
+            params = (limite,)
+        cursor.execute(sql, params)
 
         filas = cursor.fetchall()
-    return [tuple(r) for r in filas] if filas else []
+
+    # Convertir a lista de dicts
+    ventas = [
+        {
+            "id": r[0],
+            "producto_id": r[1],
+            "nombre_producto": r[2],
+            "cantidad": r[3],
+            "total": round(r[4], 2),
+            "fecha": r[5],
+            "cliente": r[6] or ""
+        }
+        for r in filas
+    ]
+    return ventas

@@ -190,3 +190,104 @@ TypeError: ventana_ventas() takes 0 positional arguments but 1 was given
 2025-08-18 09:59:01,383 [INFO] root: Aplicación iniciada.
 2025-08-18 09:59:01,393 [INFO] root: Esquema de base de datos creado/migrado correctamente.
 2025-08-18 10:07:07,202 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 10:26:14,357 [INFO] root: Aplicación iniciada.
+2025-08-18 10:26:14,392 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 10:33:15,170 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:04:53,483 [INFO] root: Aplicación iniciada.
+2025-08-18 11:04:53,503 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:05:13,986 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:06:32,465 [INFO] root: Aplicación iniciada.
+2025-08-18 11:06:32,480 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:07:04,224 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:07:54,795 [INFO] root: Aplicación iniciada.
+2025-08-18 11:07:54,837 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:29:11,753 [INFO] root: Aplicación iniciada.
+2025-08-18 11:29:11,780 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:41:54,196 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:41:59,180 [INFO] root: Aplicación iniciada.
+2025-08-18 11:41:59,193 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:49:14,321 [INFO] root: Aplicación iniciada.
+2025-08-18 11:49:14,331 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:49:22,617 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:49:32,511 [INFO] root: Aplicación iniciada.
+2025-08-18 11:49:32,524 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:51:00,606 [INFO] root: Aplicación iniciada.
+2025-08-18 11:51:00,615 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:51:10,536 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:51:43,000 [INFO] root: Aplicación iniciada.
+2025-08-18 11:51:43,015 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:51:55,674 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:54:27,190 [INFO] root: Aplicación iniciada.
+2025-08-18 11:54:27,203 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:54:38,681 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 11:54:45,319 [INFO] root: Aplicación iniciada.
+2025-08-18 11:54:45,332 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 11:55:50,724 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 12:00:09,723 [INFO] root: Aplicación iniciada.
+2025-08-18 12:00:09,735 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 12:06:30,085 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 12:06:33,715 [INFO] root: Aplicación iniciada.
+2025-08-18 12:06:33,725 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 12:06:42,172 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 12:07:17,298 [INFO] root: Aplicación iniciada.
+2025-08-18 12:07:17,318 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 12:08:56,320 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 12:26:29,924 [INFO] root: Aplicación iniciada.
+2025-08-18 12:26:29,939 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 12:33:32,148 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:23:58,489 [INFO] root: Aplicación iniciada.
+2025-08-18 13:23:58,518 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:24:00,639 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+TypeError: ventana_ventas() takes 0 positional arguments but 1 was given
+2025-08-18 13:24:14,573 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:24:33,158 [INFO] root: Aplicación iniciada.
+2025-08-18 13:24:33,170 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:24:34,821 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+TypeError: ventana_ventas() takes 0 positional arguments but 1 was given
+2025-08-18 13:24:44,740 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:25:33,832 [INFO] root: Aplicación iniciada.
+2025-08-18 13:25:33,841 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:25:35,157 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+TypeError: ventana_ventas() takes 0 positional arguments but 1 was given
+2025-08-18 13:25:48,217 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:26:26,440 [INFO] root: Aplicación iniciada.
+2025-08-18 13:26:26,452 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:26:28,064 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 1137, in ventana_ventas
+    SalesView(owner)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 172, in __init__
+    self._build_ui()
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 223, in _build_ui
+    ttk.Button(filters, text="Limpiar", command=self._clear_filters).pack(side="left", padx=(0, 6))
+                                                ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SalesView' object has no attribute '_clear_filters'
+2025-08-18 13:26:38,281 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:26:43,122 [INFO] root: Aplicación iniciada.
+2025-08-18 13:26:43,135 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:26:44,574 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 1137, in ventana_ventas
+    SalesView(owner)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 172, in __init__
+    self._build_ui()
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 223, in _build_ui
+    ttk.Button(filters, text="Limpiar", command=self._clear_filters).pack(side="left", padx=(0, 6))
+                                                ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SalesView' object has no attribute '_clear_filters'
+2025-08-18 13:26:50,793 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:29:20,749 [INFO] root: Aplicación iniciada.
+2025-08-18 13:29:20,760 [INFO] root: Esquema de base de datos creado/migrado correctamente.
