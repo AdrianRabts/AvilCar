@@ -185,6 +185,7 @@ class SalesView:
         except Exception:
             pass
 
+    
     def _init_styles(self):
         style = ttk.Style(self.win)
         try:
@@ -496,6 +497,16 @@ class SalesView:
             info["seccion"] or "Ninguno",
             info["categoria"] or "",
         )
+
+    def _clear_filters(self):
+        """Resetea todos los filtros y vuelve a mostrar todos los productos."""
+        self.filtro_texto_var.set("")
+        self.filtro_existencia_var.set(False)
+        self.filtro_seccion_var.set("Todas")
+        self.filtro_categoria_var.set("Todas")
+        self.aplicar_filtro()
+        self.status("Filtros limpiados")
+
 
     def aplicar_filtro(self, *_):
         token = self.filtro_texto_var.get().strip().lower()
@@ -1133,17 +1144,7 @@ class SalesView:
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el comprobante:\n{e}")
 
-def _clear_filters(self):
-    """Resetea todos los filtros y vuelve a mostrar todos los productos."""
-    try:
-        self.filtro_texto_var.set("")
-        self.filtro_existencia_var.set(False)
-        self.filtro_seccion_var.set("Todas")
-        self.filtro_categoria_var.set("Todas")
-        self.aplicar_filtro()
-        self.status("Filtros limpiados")
-    except Exception as e:
-        messagebox.showerror("Error", f"No se pudieron limpiar los filtros:\n{e}")
+
 
 def ventana_ventas(owner=None):
     SalesView(owner)

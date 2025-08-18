@@ -291,3 +291,48 @@ AttributeError: 'SalesView' object has no attribute '_clear_filters'
 2025-08-18 13:26:50,793 [INFO] root: Aplicación cerrada por usuario.
 2025-08-18 13:29:20,749 [INFO] root: Aplicación iniciada.
 2025-08-18 13:29:20,760 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:29:21,959 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 1149, in ventana_ventas
+    SalesView(owner)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 172, in __init__
+    self._build_ui()
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 223, in _build_ui
+    ttk.Button(filters, text="Limpiar", command=self._clear_filters).pack(side="left", padx=(0, 6))
+                                                ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SalesView' object has no attribute '_clear_filters'
+2025-08-18 13:30:14,433 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 1149, in ventana_ventas
+    SalesView(owner)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 172, in __init__
+    self._build_ui()
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 223, in _build_ui
+    ttk.Button(filters, text="Limpiar", command=self._clear_filters).pack(side="left", padx=(0, 6))
+                                                ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SalesView' object has no attribute '_clear_filters'
+2025-08-18 13:30:35,613 [INFO] root: Aplicación iniciada.
+2025-08-18 13:30:35,626 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:30:39,053 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:30:43,017 [INFO] root: Aplicación iniciada.
+2025-08-18 13:30:43,050 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:30:44,671 [ERROR] root: Error abriendo Ventas
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py", line 189, in abrir_ventas
+    ventana_ventas(root)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 1149, in ventana_ventas
+    SalesView(owner)
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 172, in __init__
+    self._build_ui()
+  File "C:\Users\User\Desktop\InventarioAvilCar\AvilCar\views\ventas_view.py", line 223, in _build_ui
+    ttk.Button(filters, text="Limpiar", command=self._clear_filters).pack(side="left", padx=(0, 6))
+                                                ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SalesView' object has no attribute '_clear_filters'
+2025-08-18 13:30:50,029 [INFO] root: Aplicación cerrada por usuario.
+2025-08-18 13:33:32,491 [INFO] root: Aplicación iniciada.
+2025-08-18 13:33:32,501 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 13:34:33,532 [INFO] root: Aplicación cerrada por usuario.
