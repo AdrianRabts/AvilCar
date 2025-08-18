@@ -189,3 +189,4 @@ TypeError: ventana_ventas() takes 0 positional arguments but 1 was given
 2025-08-18 09:56:46,432 [INFO] root: Aplicación cerrada por usuario.
 2025-08-18 09:59:01,383 [INFO] root: Aplicación iniciada.
 2025-08-18 09:59:01,393 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-08-18 10:07:07,202 [INFO] root: Aplicación cerrada por usuario.
