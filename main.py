@@ -1,5 +1,3 @@
-# C:\Users\User\Desktop\InventarioAvilCar\AvilCar\main.py
-
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -7,7 +5,7 @@ import sys
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from database.db import create_tables, migrate_schema
+from database.db import create_tables, migrate_schema  # Ya maneja AppData
 from views.productos_view import ventana_productos
 from views.ventas_view import ventana_ventas
 from views.reportes_view import ventana_reportes
@@ -28,27 +26,13 @@ TITLE_FONT = ("Segoe UI", 26, "bold")
 FOOTER_FONT = ("Segoe UI", 9, "italic")
 
 # ======================== RUTAS ========================
-def resource_path(relative_path):
-    """
-    Retorna la ruta absoluta del recurso.
-    Compatible con PyInstaller (.exe) o desarrollo normal.
-    """
-    try:
-        # PyInstaller crea un folder temporal _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
-
-# Rutas globales de recursos
-DB_PATH = resource_path("database/inventario.db")
-ASSETS_PATH = resource_path("assets")
+ASSETS_PATH = os.path.join(os.path.abspath("."), "assets")  # Para imágenes, iconos, etc.
 
 # ======================== LOGGING ========================
 def setup_logging():
-    os.makedirs(resource_path("logs"), exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
     handlers = [
-        RotatingFileHandler(resource_path("logs/app.log"), maxBytes=1_000_000, backupCount=3, encoding="utf-8"),
+        RotatingFileHandler("logs/app.log", maxBytes=1_000_000, backupCount=3, encoding="utf-8"),
         logging.StreamHandler(sys.stdout),
     ]
     logging.basicConfig(
@@ -303,8 +287,8 @@ def init_ui(root: tk.Tk):
 def main():
     setup_logging()
     try:
-        create_tables()
-        migrate_schema()
+        create_tables()      # YA usa AppData
+        migrate_schema()     # YA usa AppData
         logging.info("Esquema de base de datos creado/migrado correctamente.")
     except Exception as e:
         logging.exception("Error al crear/migrar esquema")

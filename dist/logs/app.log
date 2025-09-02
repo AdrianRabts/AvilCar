@@ -7,3 +7,25 @@
 2025-08-18 14:58:11,581 [INFO] root: Aplicación iniciada.
 2025-08-18 14:58:11,611 [INFO] root: Esquema de base de datos creado/migrado correctamente.
 2025-08-18 14:58:17,331 [INFO] root: Aplicación cerrada por usuario.
+2025-09-02 13:32:00,095 [INFO] root: Aplicación iniciada.
+2025-09-02 13:32:00,610 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-09-02 13:32:25,838 [INFO] root: Aplicación cerrada por usuario.
+2025-09-02 13:32:29,145 [INFO] root: Aplicación iniciada.
+2025-09-02 13:32:29,468 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-09-02 13:33:17,678 [INFO] root: Aplicación cerrada por usuario.
+2025-09-02 13:33:22,488 [INFO] root: Aplicación iniciada.
+2025-09-02 13:33:22,846 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-09-02 13:33:36,452 [INFO] root: Aplicación cerrada por usuario.
+2025-09-02 13:33:41,959 [INFO] root: Aplicación iniciada.
+2025-09-02 13:33:42,269 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-09-02 13:33:56,597 [INFO] root: Aplicación cerrada por usuario.
+2025-09-02 13:33:58,673 [INFO] root: Aplicación iniciada.
+2025-09-02 13:33:59,003 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2025-09-02 13:36:26,455 [ERROR] root: Error no controlado
+Traceback (most recent call last):
+  File "tkinter\__init__.py", line 2068, in __call__
+  File "views\ventas_view.py", line 347, in <lambda>
+  File "views\ventas_view.py", line 635, in _recalc_totals
+  File "tkinter\__init__.py", line 618, in get
+_tkinter.TclError: expected floating-point number but got ""
+2025-09-02 13:36:36,530 [INFO] root: Aplicación cerrada por usuario.

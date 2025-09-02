@@ -1,14 +1,30 @@
+import os
 import sqlite3
+import shutil
 from pathlib import Path
+
+APP_NAME = "AvilCar"
 
 # ========================
 # RUTAS Y CONEXIÓN
 # ========================
 def _db_path():
-    # Carpeta 'database' donde está este archivo
-    base = Path(__file__).resolve().parent
+    # Carpeta de datos del usuario
+    base = Path(os.getenv("APPDATA")) / APP_NAME
     base.mkdir(parents=True, exist_ok=True)
-    return str(base / "inventario.db")
+
+    db_file = base / "inventario.db"
+
+    # Si no existe la BD en AppData, copiamos una plantilla
+    plantilla = Path(__file__).resolve().parent / "inventario.db"
+    if not db_file.exists():
+        if plantilla.exists():
+            shutil.copy(plantilla, db_file)
+        else:
+            # Crea un archivo vacío si no hay plantilla
+            db_file.touch()
+
+    return str(db_file)
 
 def get_connection():
     conn = sqlite3.connect(
@@ -170,7 +186,7 @@ def migrate_schema():
             if col not in existentes:
                 cur.execute(f"ALTER TABLE {tabla} ADD COLUMN {col} {ddl}")
 
-    # 3) Triggers seguros para updated_at (SQLite compatible)
+    # 3) Triggers seguros para updated_at
     cur.executescript("""
     CREATE TRIGGER IF NOT EXISTS trg_productos_updated_at
     AFTER UPDATE ON productos
@@ -212,4 +228,4 @@ def migrate_schema():
 if __name__ == "__main__":
     create_tables()
     migrate_schema()
-    print("Esquema de base de datos creado y migrado correctamente con triggers seguros.")
+    print("Esquema de base de datos creado y migrado correctamente en AppData.")
