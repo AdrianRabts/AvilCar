@@ -46,10 +46,15 @@ def registrar_movimiento(producto_id, cantidad, tipo, motivo=None, conn=None):
 
     with conn:
         cursor = conn.cursor()
+        cursor.execute("SELECT nombre, COALESCE(sku, '') FROM productos WHERE id = ?", (producto_id,))
+        prod = cursor.fetchone()
+        nombre_producto = (prod[0] if prod else "") or ""
+        sku_producto = (prod[1] if prod else "") or ""
+
         cursor.execute("""
-            INSERT INTO movimientos_stock (producto_id, cantidad, tipo, motivo, fecha)
-            VALUES (?, ?, ?, ?, ?)
-        """, (producto_id, cantidad, tipo, motivo, fecha))
+            INSERT INTO movimientos_stock (producto_id, producto_nombre, producto_sku, cantidad, tipo, motivo, fecha)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (producto_id, nombre_producto, sku_producto, cantidad, tipo, motivo, fecha))
         movimiento_id = cursor.lastrowid
 
     if cerrar_conexion:

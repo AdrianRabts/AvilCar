@@ -9,7 +9,7 @@ from models.ventas import obtener_ventas
 
 WINDOW_GEOMETRY = "1480x900"
 WINDOW_MIN_SIZE = (1180, 740)
-BASE_FONT = ("Segoe UI", 11)
+BASE_FONT = ("Segoe UI", 12)
 
 # Intentar habilitar gráficos (matplotlib). Si no está, degradar con aviso.
 try:
@@ -37,11 +37,11 @@ def ventana_reportes(master=None):
         estilo.theme_use("clam")
     except Exception:
         pass
-    estilo.configure("TButton", padding=(10, 6), font=("Segoe UI", 11, "bold"))
+    estilo.configure("TButton", padding=(10, 6), font=("Segoe UI", 12, "bold"))
     estilo.configure("TLabel", font=BASE_FONT)
-    estilo.configure("TLabelframe.Label", font=("Segoe UI", 12, "bold"))
-    estilo.configure("Treeview", rowheight=30, font=BASE_FONT)
-    estilo.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+    estilo.configure("TLabelframe.Label", font=("Segoe UI", 13, "bold"))
+    estilo.configure("Treeview", rowheight=32, font=BASE_FONT)
+    estilo.configure("Treeview.Heading", font=("Segoe UI", 13, "bold"))
     root.option_add("*Font", BASE_FONT)
 
     try:

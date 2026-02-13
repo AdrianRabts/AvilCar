@@ -127,6 +127,11 @@ class SalesView:
         except Exception:
             pass
 
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
         # Estado
         self._rows: List[Dict[str, Any]] = []
         self._by_id: Dict[int, Dict[str, Any]] = {}
@@ -182,10 +187,10 @@ class SalesView:
         style.configure("Secondary.TButton", padding=(10, 6))
         style.configure("Panel.TLabelframe", background="#ffffff")
         style.configure("Panel.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
-        style.configure("Treeview", rowheight=32, font=("Segoe UI", 12))
-        style.configure("Treeview.Heading", font=("Segoe UI", 13, "bold"))
+        style.configure("Treeview", rowheight=34, font=("Segoe UI", 13))
+        style.configure("Treeview.Heading", font=("Segoe UI", 14, "bold"))
 
-        self.root.option_add("*Font", ("Segoe UI", 12))
+        self.root.option_add("*Font", ("Segoe UI", 13))
 
         style.configure("Big.TLabel", font=("Segoe UI", 16, "bold"))
         style.configure("Total.TLabel", font=("Segoe UI", 18, "bold"))
@@ -605,6 +610,7 @@ class SalesView:
                 "id": producto_id,
                 "nombre": d["nombre"],
                 "precio": float(d["precio_venta"] or 0),
+                "sku": d.get("sku", "") or "",
                 "cantidad": int(nueva),
             }
         self._cart_refresh()
@@ -709,7 +715,7 @@ class SalesView:
 
             # Validación de stock en BD
             for pid, item in self._cart.items():
-                cur.execute("SELECT stock, nombre FROM productos WHERE id=?", (pid,))
+                cur.execute("SELECT stock, nombre, COALESCE(sku, '') FROM productos WHERE id=?", (pid,))
                 row = cur.fetchone()
                 if not row:
                     raise RuntimeError(f"Producto id={pid} no existe.")
@@ -721,17 +727,17 @@ class SalesView:
             # Registrar cada ítem como una línea de venta (manteniendo tu esquema)
             for pid, item in self._cart.items():
                 line_total = item["cantidad"] * item["precio"]
-                # Proporción del total_final (por si hubo desc/IVA) —
-                # guardamos el total de la línea sin prorratear para mantenerlo simple y
-                # el total_final queda como referencia en la última línea (o podríamos ignorarlo).
+                nombre_producto = item.get("nombre", "") or ""
+                sku_producto = item.get("sku", "") or ""
+
                 cur.execute(
-                    "INSERT INTO ventas (producto_id, cantidad, total, fecha, cliente) VALUES (?,?,?,?,?)",
-                    (pid, item["cantidad"], line_total, fecha, cliente),
+                    "INSERT INTO ventas (producto_id, producto_nombre, producto_sku, cantidad, total, fecha, cliente) VALUES (?,?,?,?,?,?,?)",
+                    (pid, nombre_producto, sku_producto, item["cantidad"], line_total, fecha, cliente),
                 )
                 # Movimiento de stock (salida)
                 cur.execute(
-                    "INSERT INTO movimientos_stock (producto_id, cantidad, tipo, motivo, fecha) VALUES (?,?,?,?,?)",
-                    (pid, item["cantidad"], "salida", "venta", fecha),
+                    "INSERT INTO movimientos_stock (producto_id, producto_nombre, producto_sku, cantidad, tipo, motivo, fecha) VALUES (?,?,?,?,?,?,?)",
+                    (pid, nombre_producto, sku_producto, item["cantidad"], "salida", "venta", fecha),
                 )
                 # Descontar stock
                 cur.execute("UPDATE productos SET stock = stock - ? WHERE id = ?", (item["cantidad"], pid))
