@@ -97,8 +97,8 @@ class SalesView:
         self.owner = owner
         self.root = tk.Toplevel(owner) if owner is not None else tk.Tk()
         self.root.title("Ventas")
-        self.root.geometry("1900x800")
-        self.root.minsize(1150, 720)
+        self.root.geometry("1500x860")
+        self.root.minsize(1180, 720)
         self.root.configure(bg="#f6f7fb")
         if owner is not None:
             self.root.transient(owner)
@@ -106,6 +106,11 @@ class SalesView:
                 self.root.grab_set()  # experiencia modal suave
             except Exception:
                 pass
+
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
 
         # Estado
         self._rows: List[Dict[str, Any]] = []
@@ -161,9 +166,13 @@ class SalesView:
 
         style.configure("Secondary.TButton", padding=(10, 6))
         style.configure("Panel.TLabelframe", background="#ffffff")
-        style.configure("Panel.TLabelframe.Label", font=("Segoe UI", 11, "bold"))
+        style.configure("Panel.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+        style.configure("Treeview", rowheight=34, font=("Segoe UI", 13))
+        style.configure("Treeview.Heading", font=("Segoe UI", 14, "bold"))
 
-        style.configure("Big.TLabel", font=("Segoe UI", 14, "bold"))
+        self.root.option_add("*Font", ("Segoe UI", 13))
+
+        style.configure("Big.TLabel", font=("Segoe UI", 16, "bold"))
         style.configure("Total.TLabel", font=("Segoe UI", 18, "bold"))
 
     # ----------------------
@@ -171,17 +180,17 @@ class SalesView:
     # ----------------------
     def _build_ui(self):
         paned = ttk.Panedwindow(self.root, orient="horizontal")
-        paned.pack(fill="both", expand=True, padx=10, pady=10)
+        paned.pack(fill="both", expand=True, padx=10, pady=(10, 28))
 
         # Izquierda: filtros + lista
         left = ttk.Frame(paned)
-        paned.add(left, weight=3)
+        paned.add(left, weight=2)
         self._build_filters(left)
         self._build_list(left)
 
         # Derecha: detalle + carrito + totales
         right = ttk.Panedwindow(paned, orient="vertical")
-        paned.add(right, weight=2)
+        paned.add(right, weight=3)
 
         detail_frame = ttk.Labelframe(right, text="Detalle del producto", style="Panel.TLabelframe")
         right.add(detail_frame, weight=1)
@@ -194,26 +203,29 @@ class SalesView:
     # Filtros
     def _build_filters(self, parent: tk.Misc):
         bar = ttk.Frame(parent)
-        bar.pack(fill="x", padx=6, pady=(0, 8))
+        bar.pack(fill="x", padx=8, pady=(0, 10))
 
-        ttk.Label(bar, text="Buscar:").pack(side="left")
+        for col in (1, 3, 5):
+            bar.columnconfigure(col, weight=1)
+
+        ttk.Label(bar, text="Buscar:").grid(row=0, column=0, sticky="w", padx=6, pady=4)
         self.txt_buscar = ttk.Entry(bar, textvariable=self.filtro_texto_var, width=30)
-        self.txt_buscar.pack(side="left", padx=(6, 14))
+        self.txt_buscar.grid(row=0, column=1, sticky="ew", padx=6, pady=4)
         self.txt_buscar.bind("<Return>", lambda e: self.aplicar_filtro())
 
-        ttk.Label(bar, text="Sección:").pack(side="left")
+        ttk.Label(bar, text="Sección:").grid(row=0, column=2, sticky="w", padx=6, pady=4)
         self.cbo_seccion = ttk.Combobox(bar, textvariable=self.filtro_seccion_var, width=18, state="readonly")
-        self.cbo_seccion.pack(side="left", padx=(6, 14))
+        self.cbo_seccion.grid(row=0, column=3, sticky="ew", padx=6, pady=4)
 
-        ttk.Label(bar, text="Categoría:").pack(side="left")
+        ttk.Label(bar, text="Categoría:").grid(row=0, column=4, sticky="w", padx=6, pady=4)
         self.cbo_categoria = ttk.Combobox(bar, textvariable=self.filtro_categoria_var, width=18, state="readonly")
-        self.cbo_categoria.pack(side="left", padx=(6, 14))
+        self.cbo_categoria.grid(row=0, column=5, sticky="ew", padx=6, pady=4)
 
         self.chk_exist = ttk.Checkbutton(bar, variable=self.filtro_existencia_var, text="Solo con stock")
-        self.chk_exist.pack(side="left", padx=(6, 14))
+        self.chk_exist.grid(row=0, column=6, sticky="w", padx=10, pady=4)
 
-        ttk.Button(bar, text="Aplicar", style="Primary.TButton", command=self.aplicar_filtro).pack(side="left")
-        ttk.Button(bar, text="Limpiar", style="Secondary.TButton", command=self._clear_filters).pack(side="left", padx=(8, 0))
+        ttk.Button(bar, text="Aplicar", style="Primary.TButton", command=self.aplicar_filtro).grid(row=0, column=7, padx=(8, 4), pady=4)
+        ttk.Button(bar, text="Limpiar", style="Secondary.TButton", command=self._clear_filters).grid(row=0, column=8, padx=(4, 0), pady=4)
 
     # Lista de productos
     def _build_list(self, parent: tk.Misc):
@@ -294,13 +306,13 @@ class SalesView:
 
     # Carrito + totales
     def _build_cart(self, parent: tk.Misc):
-        top = ttk.Frame(parent)
-        top.pack(fill="both", expand=True, padx=10, pady=10)
-        top.rowconfigure(0, weight=1)
-        top.columnconfigure(0, weight=1)
+        content = ttk.Frame(parent)
+        content.pack(fill="both", expand=True, padx=10, pady=(8, 4))
+        content.columnconfigure(0, weight=1)
+        content.rowconfigure(0, weight=1)
 
         cols = ["id", "nombre", "cant", "precio", "subtotal"]
-        self.cart = ttk.Treeview(top, columns=cols, show="headings", selectmode="browse")
+        self.cart = ttk.Treeview(content, columns=cols, show="headings", selectmode="browse", height=9)
         for c, h, w in [
             ("id", "ID", 60),
             ("nombre", "Producto", 320),
@@ -311,30 +323,34 @@ class SalesView:
             self.cart.heading(c, text=h, anchor="w")
             self.cart.column(c, width=w, stretch=(c == "nombre"))
 
-        vsb = ttk.Scrollbar(top, orient="vertical", command=self.cart.yview)
+        vsb = ttk.Scrollbar(content, orient="vertical", command=self.cart.yview)
         self.cart.configure(yscroll=vsb.set)
         self.cart.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
 
-        actions = ttk.Frame(parent)
-        actions.pack(fill="x", padx=10, pady=(0, 10))
+        actions = ttk.Frame(content)
+        actions.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(6, 4))
+        actions.columnconfigure(5, weight=1)
 
-        ttk.Button(actions, text="Quitar", style="Danger.TButton", command=self._cart_remove_selected).pack(side="left")
-        ttk.Button(actions, text="Vaciar", command=self._cart_clear).pack(side="left", padx=(6, 14))
-        ttk.Button(actions, text="+", command=lambda: self._cart_incdec(+1)).pack(side="left")
-        ttk.Button(actions, text="-", command=lambda: self._cart_incdec(-1)).pack(side="left", padx=(6, 0))
+        ttk.Button(actions, text="Quitar", style="Danger.TButton", command=self._cart_remove_selected).grid(row=0, column=0, padx=(0, 6), pady=2, sticky="ew")
+        ttk.Button(actions, text="Vaciar", command=self._cart_clear).grid(row=0, column=1, padx=(0, 12), pady=2, sticky="ew")
+        ttk.Button(actions, text="+", command=lambda: self._cart_incdec(+1)).grid(row=0, column=2, padx=(0, 6), pady=2, sticky="ew")
+        ttk.Button(actions, text="-", command=lambda: self._cart_incdec(-1)).grid(row=0, column=3, padx=(0, 12), pady=2, sticky="ew")
 
-        ttk.Label(actions, text="Cliente:").pack(side="left", padx=(18, 6))
-        ttk.Entry(actions, textvariable=self.cliente_var, width=28).pack(side="left")
+        ttk.Label(actions, text="Cliente:").grid(row=0, column=4, padx=(8, 6), pady=2, sticky="e")
+        ttk.Entry(actions, textvariable=self.cliente_var, width=26).grid(row=0, column=5, padx=(0, 12), pady=2, sticky="ew")
 
-        ttk.Button(actions, text="Registrar venta", style="Primary.TButton", command=self._register_sale).pack(side="right")
+        ttk.Button(actions, text="Registrar venta", style="Primary.TButton", command=self._register_sale).grid(row=0, column=6, pady=2, sticky="e")
 
-        totals = ttk.Frame(parent)
-        totals.pack(fill="x", padx=10, pady=(0, 10))
+        totals = ttk.Frame(content)
+        totals.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 2))
+        totals.columnconfigure(0, weight=1)
+        totals.columnconfigure(1, weight=1)
+        totals.columnconfigure(2, weight=2)
 
         # Descuento
-        box_desc = ttk.Labelframe(totals, text="Descuento", padding=8)
-        box_desc.pack(side="left", padx=(0, 12))
+        box_desc = ttk.Labelframe(totals, text="Descuento", padding=6)
+        box_desc.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
         rb_none = ttk.Radiobutton(box_desc, text="Sin descuento", value="none", variable=self.desc_mode_var, command=self._recalc_totals)
         rb_pct = ttk.Radiobutton(box_desc, text="%", value="pct", variable=self.desc_mode_var, command=self._recalc_totals)
         rb_abs = ttk.Radiobutton(box_desc, text="$", value="abs", variable=self.desc_mode_var, command=self._recalc_totals)
@@ -347,8 +363,8 @@ class SalesView:
             w.bind("<KeyRelease>", lambda e: self._recalc_totals())
 
         # IVA
-        box_tax = ttk.Labelframe(totals, text="IVA", padding=8)
-        box_tax.pack(side="left", padx=(0, 12))
+        box_tax = ttk.Labelframe(totals, text="IVA", padding=6)
+        box_tax.grid(row=0, column=1, sticky="nsew", padx=(0, 8))
         chk = ttk.Checkbutton(box_tax, text="Aplicar", variable=self.apply_iva_var, command=self._recalc_totals)
         chk.grid(row=0, column=0, sticky="w")
         ttk.Label(box_tax, text="%:").grid(row=0, column=1, padx=(8, 4))
@@ -358,8 +374,8 @@ class SalesView:
             w.bind("<KeyRelease>", lambda e: self._recalc_totals())
 
         # Resumen
-        box_sum = ttk.Labelframe(totals, text="Resumen", padding=8)
-        box_sum.pack(side="right", fill="x", expand=True)
+        box_sum = ttk.Labelframe(totals, text="Resumen", padding=6)
+        box_sum.grid(row=0, column=2, sticky="nsew")
 
         def row(parent, r, label, var, style=None):
             ttk.Label(parent, text=label).grid(row=r, column=0, sticky="e", padx=(0, 8))
@@ -574,6 +590,7 @@ class SalesView:
                 "id": producto_id,
                 "nombre": d["nombre"],
                 "precio": float(d["precio_venta"] or 0),
+                "sku": d.get("sku", "") or "",
                 "cantidad": int(nueva),
             }
         self._cart_refresh()
@@ -663,7 +680,7 @@ class SalesView:
             return
 
         cliente = self.cliente_var.get().strip() or "Consumidor Final"
-        fecha = now_date()
+        fecha = now_iso()
 
         # Calcular totales finales por si no están frescos
         self._recalc_totals()
@@ -677,33 +694,42 @@ class SalesView:
             cur = conn.cursor()
 
             # Validación de stock en BD
+            info_producto: Dict[int, tuple[str, str, int]] = {}
             for pid, item in self._cart.items():
-                cur.execute("SELECT stock, nombre FROM productos WHERE id=?", (pid,))
+                cur.execute("SELECT stock, nombre, COALESCE(sku, '') FROM productos WHERE id=?", (pid,))
                 row = cur.fetchone()
                 if not row:
                     raise RuntimeError(f"Producto id={pid} no existe.")
                 stock_actual = int(row[0] or 0)
-                nombre = row[1]
+                nombre = str(row[1] or "")
+                sku = str(row[2] or "")
+                info_producto[pid] = (nombre, sku, stock_actual)
                 if item["cantidad"] > stock_actual:
                     raise RuntimeError(f"Stock insuficiente para '{nombre}'. Disponible: {stock_actual}")
 
             # Registrar cada ítem como una línea de venta (manteniendo tu esquema)
             for pid, item in self._cart.items():
                 line_total = item["cantidad"] * item["precio"]
-                # Proporción del total_final (por si hubo desc/IVA) —
-                # guardamos el total de la línea sin prorratear para mantenerlo simple y
-                # el total_final queda como referencia en la última línea (o podríamos ignorarlo).
+                nombre_db, sku_db, _ = info_producto[pid]
+                nombre_producto = item.get("nombre", "") or nombre_db
+                sku_producto = item.get("sku", "") or sku_db
+
                 cur.execute(
-                    "INSERT INTO ventas (producto_id, cantidad, total, fecha, cliente) VALUES (?,?,?,?,?)",
-                    (pid, item["cantidad"], line_total, fecha, cliente),
+                    "INSERT INTO ventas (producto_id, producto_nombre, producto_sku, cantidad, total, fecha, cliente) VALUES (?,?,?,?,?,?,?)",
+                    (pid, nombre_producto, sku_producto, item["cantidad"], line_total, fecha, cliente),
                 )
                 # Movimiento de stock (salida)
                 cur.execute(
-                    "INSERT INTO movimientos_stock (producto_id, cantidad, tipo, motivo, fecha) VALUES (?,?,?,?,?)",
-                    (pid, item["cantidad"], "salida", "venta", fecha),
+                    "INSERT INTO movimientos_stock (producto_id, producto_nombre, producto_sku, cantidad, tipo, motivo, fecha) VALUES (?,?,?,?,?,?,?)",
+                    (pid, nombre_producto, sku_producto, item["cantidad"], "salida", "venta", fecha),
                 )
-                # Descontar stock
-                cur.execute("UPDATE productos SET stock = stock - ? WHERE id = ?", (item["cantidad"], pid))
+                # Descontar stock (check concurrente)
+                cur.execute(
+                    "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?",
+                    (item["cantidad"], pid, item["cantidad"]),
+                )
+                if cur.rowcount == 0:
+                    raise RuntimeError(f"No se pudo descontar stock para '{nombre_producto}'. Intente nuevamente.")
 
             conn.commit()
         except Exception as e:

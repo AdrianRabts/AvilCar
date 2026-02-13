@@ -21,7 +21,7 @@ def registrar_venta(producto_id: int, cantidad: Union[int, float], cliente: Opti
 
             # Obtener datos del producto
             cursor.execute("""
-                SELECT precio_venta, stock, nombre 
+                SELECT precio_venta, stock, nombre, COALESCE(sku,'') 
                 FROM productos 
                 WHERE id = ?
             """, (producto_id,))
@@ -29,7 +29,7 @@ def registrar_venta(producto_id: int, cantidad: Union[int, float], cliente: Opti
             if fila is None:
                 raise ValueError("Producto no encontrado.")
 
-            precio_unitario, stock_actual, nombre_producto = fila
+            precio_unitario, stock_actual, nombre_producto, sku_producto = fila
 
             if stock_actual < cantidad:
                 raise ValueError("Stock insuficiente.")
@@ -49,9 +49,9 @@ def registrar_venta(producto_id: int, cantidad: Union[int, float], cliente: Opti
 
             # Registrar la venta
             cursor.execute("""
-                INSERT INTO ventas (producto_id, cantidad, total, fecha, cliente)
-                VALUES (?, ?, ?, ?, ?)
-            """, (producto_id, cantidad, total, fecha, cliente_val))
+                INSERT INTO ventas (producto_id, producto_nombre, producto_sku, cantidad, total, fecha, cliente)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (producto_id, nombre_producto, sku_producto or "", cantidad, total, fecha, cliente_val))
             id_venta = cursor.lastrowid
 
             # Registrar movimiento
@@ -91,7 +91,7 @@ def obtener_ventas(limite: Optional[int] = None) -> List[Dict]:
         sql = """
             SELECT v.id,
                    v.producto_id,
-                   COALESCE(p.nombre, 'Desconocido') AS nombre_producto,
+                   COALESCE(NULLIF(v.producto_nombre, ''), p.nombre, 'Producto eliminado') AS nombre_producto,
                    v.cantidad,
                    v.total,
                    v.fecha,
