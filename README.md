@@ -35,3 +35,20 @@ El ejecutable queda en:
 
 La base de datos **no** se guarda dentro del `.exe`.
 Se guarda en `%APPDATA%\AvilCar\inventario.db`, por lo que el cliente mantiene sus datos entre ejecuciones.
+
+
+## Si GitHub bloquea el merge por conflictos
+
+Puedes resolverlo desde GitHub si aparece **Resolve conflicts**. Si no aparece, hazlo local:
+
+```bash
+git fetch origin
+git checkout work
+git merge origin/main
+# Resolver conflictos en archivos, luego:
+git add .
+git commit -m "Resolve merge conflicts with main"
+git push origin work
+```
+
+> Si tu rama destino es `master`, cambia `origin/main` por `origin/master`.

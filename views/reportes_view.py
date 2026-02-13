@@ -7,6 +7,10 @@ from collections import defaultdict
 from models.reportes import ventas_totales, ventas_por_producto, productos_bajo_stock, movimientos_recientes
 from models.ventas import obtener_ventas
 
+WINDOW_GEOMETRY = "1480x900"
+WINDOW_MIN_SIZE = (1180, 740)
+BASE_FONT = ("Segoe UI", 11)
+
 # Intentar habilitar gráficos (matplotlib). Si no está, degradar con aviso.
 try:
     from matplotlib.figure import Figure
@@ -25,8 +29,8 @@ def ventana_reportes(master=None):
         root = tk.Toplevel(master)
 
     root.title("Inventario - Reportes")
-    root.geometry("1480x900")
-    root.minsize(1180, 740)
+    root.geometry(WINDOW_GEOMETRY)
+    root.minsize(*WINDOW_MIN_SIZE)
 
     estilo = ttk.Style()
     try:
@@ -34,11 +38,17 @@ def ventana_reportes(master=None):
     except Exception:
         pass
     estilo.configure("TButton", padding=(10, 6), font=("Segoe UI", 11, "bold"))
-    estilo.configure("TLabel", font=("Segoe UI", 11))
+    estilo.configure("TLabel", font=BASE_FONT)
     estilo.configure("TLabelframe.Label", font=("Segoe UI", 12, "bold"))
-    estilo.configure("Treeview", rowheight=30, font=("Segoe UI", 11))
+    estilo.configure("Treeview", rowheight=30, font=BASE_FONT)
     estilo.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
-    root.option_add("*Font", ("Segoe UI", 11))
+    root.option_add("*Font", BASE_FONT)
+
+    if root_created:
+        try:
+            root.state("zoomed")
+        except Exception:
+            pass
 
     # ------------- UTILIDADES UI -------------
     def build_tree(parent, columns, height=12, stretch=True):
@@ -88,6 +98,37 @@ def ventana_reportes(master=None):
         tv.bind("<Button-3>", show_context_menu)
         return tv
 
+
+    def _venta_value(row, key, idx, default=""):
+        if isinstance(row, dict):
+            return row.get(key, default)
+        try:
+            if hasattr(row, "keys") and key in row.keys():
+                return row[key]
+        except Exception:
+            pass
+        try:
+            return row[idx]
+        except Exception:
+            return default
+
+    def normalizar_venta_row(row):
+        return (
+            _venta_value(row, "id", 0, 0),
+            _venta_value(row, "producto_id", 1, 0),
+            _venta_value(row, "nombre_producto", 2, ""),
+            _venta_value(row, "cantidad", 3, 0),
+            _venta_value(row, "total", 4, 0),
+            _venta_value(row, "fecha", 5, ""),
+            _venta_value(row, "cliente", 6, ""),
+        )
+
+    def parse_num_safe(v):
+        try:
+            return float(str(v).replace("$", "").replace(",", ""))
+        except Exception:
+            return 0.0
+
     def fill_treeview(tv, rows, tag_func=None):
         tv.delete(*tv.get_children())
         for i, r in enumerate(rows):
@@ -106,7 +147,7 @@ def ventana_reportes(master=None):
             s = str(x).strip()
             # número
             try:
-                return float(s.replace(",", ""))
+                return float(s.replace("$", "").replace(",", ""))
             except ValueError:
                 pass
             # fechas comunes
@@ -263,8 +304,11 @@ def ventana_reportes(master=None):
     spin_pagsize.set("50")
     spin_pagsize.grid(row=1, column=5, padx=6, pady=6, sticky="w")
 
-    ttk.Button(filtros, text="Aplicar", command=lambda: aplicar_filtros_hist(reset_page=True)).grid(row=1, column=8, padx=6, pady=6)
-    ttk.Button(filtros, text="Limpiar", command=lambda: limpiar_filtros_hist()).grid(row=1, column=9, padx=6, pady=6)
+    filtros_actions = ttk.Frame(filtros)
+    filtros_actions.grid(row=1, column=8, columnspan=2, padx=6, pady=6, sticky="e")
+
+    ttk.Button(filtros_actions, text="Aplicar", command=lambda: aplicar_filtros_hist(reset_page=True)).pack(side="left", padx=(0, 6))
+    ttk.Button(filtros_actions, text="Limpiar", command=lambda: limpiar_filtros_hist()).pack(side="left")
 
     cols_hist = ("ID", "Producto ID", "Nombre", "Cantidad", "Total", "Fecha", "Cliente")
     tv_hist = build_tree(tab_hist, cols_hist, height=18)
@@ -366,7 +410,7 @@ def ventana_reportes(master=None):
 
         # Historial base
         try:
-            ventas_hist_todas = obtener_ventas() or []
+            ventas_hist_todas = [normalizar_venta_row(r) for r in (obtener_ventas() or [])]
         except Exception as e:
             ventas_hist_todas = []
             messagebox.showwarning("Historial", f"No se pudo cargar el historial de ventas:\n{e}")
@@ -379,7 +423,7 @@ def ventana_reportes(master=None):
             ventas_mes_ant = 0.0
             for r in ventas_hist_todas:
                 # r = ("ID","Producto ID","Nombre","Cantidad","Total","Fecha","Cliente")
-                total_r = float(str(r[4]).replace(",", "")) if r[4] is not None else 0.0
+                total_r = parse_num_safe(r[4])
                 f = parse_date_safe(r[5])
                 if not f:
                     continue
@@ -462,7 +506,7 @@ def ventana_reportes(master=None):
 
         def pasa(row):
             nombre = str(row[2]).lower()
-            cliente = str(row[6]).lower() if len(row) > 6 and row[6] else ""
+            cliente = str(row[6]).lower() if row[6] else ""
             if texto_q and texto_q not in nombre:
                 return False
             if cliente_q and cliente_q not in cliente:
@@ -471,9 +515,10 @@ def ventana_reportes(master=None):
                 f = parse_date_safe(row[5])
                 if not f:
                     return False
-                if desde and f < desde:
+                f_date = f.date()
+                if desde and f_date < desde.date():
                     return False
-                if hasta and f > hasta:
+                if hasta and f_date > hasta.date():
                     return False
             return True
 
@@ -533,7 +578,11 @@ def ventana_reportes(master=None):
             anios = {datetime.now().year}
         valores = sorted(list(anios))
         combo_anio["values"] = valores
-        if combo_anio.get() == "" or int(combo_anio.get() or 0) not in valores:
+        try:
+            selected = int(combo_anio.get())
+        except (ValueError, TypeError):
+            selected = None
+        if selected not in valores:
             combo_anio.set(str(valores[-1]))
 
     def ventas_mensuales_por_anio(anio):
@@ -544,7 +593,7 @@ def ventana_reportes(master=None):
             if not f or f.year != anio:
                 continue
             try:
-                total_r = float(str(r[4]).replace(",", "")) if r[4] is not None else 0.0
+                total_r = parse_num_safe(r[4])
             except Exception:
                 total_r = 0.0
             totales[f.month - 1] += total_r
