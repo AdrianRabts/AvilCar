@@ -137,6 +137,11 @@ class SalesView:
         except Exception:
             pass
 
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
         # Estado
         self._rows: List[Dict[str, Any]] = []
         self._by_id: Dict[int, Dict[str, Any]] = {}
@@ -705,7 +710,7 @@ class SalesView:
             return
 
         cliente = self.cliente_var.get().strip() or "Consumidor Final"
-        fecha = now_date()
+        fecha = now_iso()
 
         # Calcular totales finales por si no están frescos
         self._recalc_totals()
@@ -719,21 +724,25 @@ class SalesView:
             cur = conn.cursor()
 
             # Validación de stock en BD
+            info_producto: Dict[int, tuple[str, str, int]] = {}
             for pid, item in self._cart.items():
                 cur.execute("SELECT stock, nombre, COALESCE(sku, '') FROM productos WHERE id=?", (pid,))
                 row = cur.fetchone()
                 if not row:
                     raise RuntimeError(f"Producto id={pid} no existe.")
                 stock_actual = int(row[0] or 0)
-                nombre = row[1]
+                nombre = str(row[1] or "")
+                sku = str(row[2] or "")
+                info_producto[pid] = (nombre, sku, stock_actual)
                 if item["cantidad"] > stock_actual:
                     raise RuntimeError(f"Stock insuficiente para '{nombre}'. Disponible: {stock_actual}")
 
             # Registrar cada ítem como una línea de venta (manteniendo tu esquema)
             for pid, item in self._cart.items():
                 line_total = item["cantidad"] * item["precio"]
-                nombre_producto = item.get("nombre", "") or ""
-                sku_producto = item.get("sku", "") or ""
+                nombre_db, sku_db, _ = info_producto[pid]
+                nombre_producto = item.get("nombre", "") or nombre_db
+                sku_producto = item.get("sku", "") or sku_db
 
                 cur.execute(
                     "INSERT INTO ventas (producto_id, producto_nombre, producto_sku, cantidad, total, fecha, cliente) VALUES (?,?,?,?,?,?,?)",
@@ -744,8 +753,13 @@ class SalesView:
                     "INSERT INTO movimientos_stock (producto_id, producto_nombre, producto_sku, cantidad, tipo, motivo, fecha) VALUES (?,?,?,?,?,?,?)",
                     (pid, nombre_producto, sku_producto, item["cantidad"], "salida", "venta", fecha),
                 )
-                # Descontar stock
-                cur.execute("UPDATE productos SET stock = stock - ? WHERE id = ?", (item["cantidad"], pid))
+                # Descontar stock (check concurrente)
+                cur.execute(
+                    "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?",
+                    (item["cantidad"], pid, item["cantidad"]),
+                )
+                if cur.rowcount == 0:
+                    raise RuntimeError(f"No se pudo descontar stock para '{nombre_producto}'. Intente nuevamente.")
 
             conn.commit()
         except Exception as e:
