@@ -853,10 +853,12 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         menu_font = tkfont.nametofont("TkMenuFont")
         small_font = tkfont.nametofont("TkSmallCaptionFont")
 
+        # Incremento moderado para evitar desbordes y saltos de layout.
+        font_bump = 2
         for f in (default_font, text_font, fixed_font, heading_font, icon_font, menu_font, small_font):
             size = f.cget("size")
             try:
-                f.configure(size=int(size) + 6)
+                f.configure(size=int(size) + font_bump)
             except Exception:
                 pass
     except Exception:
@@ -869,8 +871,8 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         estilo.configure(STYLE_DANGER, foreground="white", background="#D9534F")
         estilo.map(STYLE_DANGER, background=[("active", "#c9302c")])
         estilo.configure(STYLE_DEFAULT, foreground="black")
-        estilo.configure("Treeview", rowheight=30)
-        estilo.configure("Treeview.Heading", font=("Segoe UI", 15, "bold"))
+        estilo.configure("Treeview", rowheight=28)
+        estilo.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
     except Exception:
         pass
 
@@ -907,10 +909,11 @@ def ventana_productos(parent: tk.Misc | None = None) -> None:
     # Permitir resize y establecer tamaño inicial
     # Permitir resize y establecer tamaño inicial
     try:
-        container.state("zoomed")        # se abre maximizada
-        container.geometry("1900x900")
-        container.minsize(1200, 720)     # tamaño mínimo
-        container.resizable(True, True)  # se puede redimensionar
+        container.geometry("1400x820")
+        container.minsize(1100, 680)
+        container.resizable(True, True)
+        if stand_alone:
+            container.state("zoomed")
     except Exception:
         pass
 

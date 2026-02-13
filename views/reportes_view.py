@@ -25,7 +25,8 @@ def ventana_reportes(master=None):
         root = tk.Toplevel(master)
 
     root.title("Inventario - Reportes")
-    root.geometry("1200x820")
+    root.geometry("1300x820")
+    root.minsize(1040, 680)
 
     estilo = ttk.Style()
     try:
@@ -166,24 +167,32 @@ def ventana_reportes(master=None):
     # ------------- TOOLBAR SUPERIOR -------------
     toolbar = ttk.Frame(root)
     toolbar.pack(fill="x", padx=10, pady=8)
+    toolbar.columnconfigure(0, weight=1)
+    toolbar.columnconfigure(1, weight=1)
 
-    btn_actualizar = ttk.Button(toolbar, text="Actualizar ahora")
+    toolbar_left = ttk.Frame(toolbar)
+    toolbar_left.grid(row=0, column=0, sticky="w")
+
+    toolbar_right = ttk.Frame(toolbar)
+    toolbar_right.grid(row=0, column=1, sticky="e")
+
+    btn_actualizar = ttk.Button(toolbar_left, text="Actualizar ahora")
     btn_actualizar.pack(side="left", padx=4)
 
-    ttk.Label(toolbar, text="Auto-actualizar (seg):").pack(side="left", padx=(12, 4))
-    spin_intervalo = ttk.Spinbox(toolbar, from_=5, to=3600, width=6)
+    ttk.Label(toolbar_left, text="Auto-actualizar (seg):").pack(side="left", padx=(12, 4))
+    spin_intervalo = ttk.Spinbox(toolbar_left, from_=5, to=3600, width=6)
     spin_intervalo.set("30")
     spin_intervalo.pack(side="left", padx=4)
 
     auto_var = tk.BooleanVar(value=True)
-    chk_auto = ttk.Checkbutton(toolbar, text="Activado", variable=auto_var)
+    chk_auto = ttk.Checkbutton(toolbar_left, text="Activado", variable=auto_var)
     chk_auto.pack(side="left", padx=8)
 
-    lbl_last = ttk.Label(toolbar, text="Última actualización: --")
-    lbl_last.pack(side="right", padx=4)
-
-    btn_exportar_tabla = ttk.Button(toolbar, text="Exportar tabla visible (CSV)")
+    btn_exportar_tabla = ttk.Button(toolbar_right, text="Exportar tabla visible (CSV)")
     btn_exportar_tabla.pack(side="right", padx=4)
+
+    lbl_last = ttk.Label(toolbar_right, text="Última actualización: --")
+    lbl_last.pack(side="right", padx=4)
 
     # ------------- NOTEBOOK -------------
     notebook = ttk.Notebook(root)

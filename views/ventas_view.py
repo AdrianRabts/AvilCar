@@ -97,13 +97,18 @@ class SalesView:
         self.owner = owner
         self.root = tk.Toplevel(owner) if owner is not None else tk.Tk()
         self.root.title("Ventas")
-        self.root.geometry("1900x800")
-        self.root.minsize(1150, 720)
+        self.root.geometry("1400x820")
+        self.root.minsize(1100, 680)
         self.root.configure(bg="#f6f7fb")
         if owner is not None:
             self.root.transient(owner)
             try:
                 self.root.grab_set()  # experiencia modal suave
+            except Exception:
+                pass
+        else:
+            try:
+                self.root.state("zoomed")
             except Exception:
                 pass
 
