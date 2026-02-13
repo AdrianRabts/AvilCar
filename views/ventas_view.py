@@ -142,6 +142,11 @@ class SalesView:
         except Exception:
             pass
 
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
         # Estado
         self._rows: List[Dict[str, Any]] = []
         self._by_id: Dict[int, Dict[str, Any]] = {}

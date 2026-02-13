@@ -843,22 +843,35 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
     except Exception:
         pass
 
-    # Aumentar fuentes por defecto para que "se vea más grande"
+    # Ajuste de fuentes (idempotente): aplica una sola vez por proceso.
+    # Evita que al abrir/cerrar la vista las letras sigan creciendo.
     try:
-        default_font = tkfont.nametofont("TkDefaultFont")
-        text_font = tkfont.nametofont("TkTextFont")
-        fixed_font = tkfont.nametofont("TkFixedFont")
-        heading_font = tkfont.nametofont("TkHeadingFont")
-        icon_font = tkfont.nametofont("TkIconFont")
-        menu_font = tkfont.nametofont("TkMenuFont")
-        small_font = tkfont.nametofont("TkSmallCaptionFont")
+        already_scaled = False
+        try:
+            already_scaled = bool(int(root.tk.globalgetvar("avilcar_fonts_scaled")))
+        except Exception:
+            already_scaled = False
 
-        # Incremento moderado para evitar desbordes y saltos de layout.
-        font_bump = 4
-        for f in (default_font, text_font, fixed_font, heading_font, icon_font, menu_font, small_font):
-            size = f.cget("size")
+        if not already_scaled:
+            fonts_with_min_size = (
+                ("TkDefaultFont", 13),
+                ("TkTextFont", 13),
+                ("TkFixedFont", 13),
+                ("TkHeadingFont", 13),
+                ("TkIconFont", 12),
+                ("TkMenuFont", 12),
+                ("TkSmallCaptionFont", 11),
+            )
+            for fname, min_size in fonts_with_min_size:
+                try:
+                    f = tkfont.nametofont(fname)
+                    size = int(f.cget("size"))
+                    if size < min_size:
+                        f.configure(size=min_size)
+                except Exception:
+                    pass
             try:
-                f.configure(size=int(size) + font_bump)
+                root.tk.globalsetvar("avilcar_fonts_scaled", 1)
             except Exception:
                 pass
     except Exception:
