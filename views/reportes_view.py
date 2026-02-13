@@ -44,11 +44,10 @@ def ventana_reportes(master=None):
     estilo.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
     root.option_add("*Font", BASE_FONT)
 
-    if root_created:
-        try:
-            root.state("zoomed")
-        except Exception:
-            pass
+    try:
+        root.state("zoomed")
+    except Exception:
+        pass
 
     # ------------- UTILIDADES UI -------------
     def build_tree(parent, columns, height=12, stretch=True):

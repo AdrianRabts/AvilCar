@@ -199,9 +199,9 @@ def _crear_tabla(parent: tk.Widget) -> ttk.Treeview:
         elif col in ("ID", "Stock"):
             anchor, width = "center", 90
         elif col == "Nombre":
-            anchor, width = "w", 320
+            anchor, width = "w", 280
         else:
-            anchor, width = "center", 170
+            anchor, width = "center", 150
 
         tabla.heading(col, text=col, anchor=anchor, command=lambda c=col: sort_treeview(tabla, c, False))
         tabla.column(col, width=width, anchor=anchor, stretch=(col in ("Nombre", "Seccion", "Categoria")))
@@ -909,11 +909,13 @@ def ventana_productos(parent: tk.Misc | None = None) -> None:
     # Permitir resize y establecer tamaño inicial
     # Permitir resize y establecer tamaño inicial
     try:
-        container.geometry("1400x820")
-        container.minsize(1100, 680)
+        container.geometry("1560x920")
+        container.minsize(1200, 760)
         container.resizable(True, True)
-        if stand_alone:
+        try:
             container.state("zoomed")
+        except Exception:
+            pass
     except Exception:
         pass
 
