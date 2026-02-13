@@ -29,3 +29,18 @@ Traceback (most recent call last):
   File "tkinter\__init__.py", line 618, in get
 _tkinter.TclError: expected floating-point number but got ""
 2025-09-02 13:36:36,530 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 19:18:33,697 [INFO] root: Aplicación iniciada.
+2026-02-12 19:18:33,721 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 19:19:58,613 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 19:20:04,523 [INFO] root: Aplicación iniciada.
+2026-02-12 19:20:04,534 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 19:21:09,321 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 19:21:22,499 [INFO] root: Aplicación iniciada.
+2026-02-12 19:21:22,511 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 19:21:27,924 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 19:24:09,153 [INFO] root: Aplicación iniciada.
+2026-02-12 19:24:09,169 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 19:37:02,193 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 21:05:40,015 [INFO] root: Aplicación iniciada.
+2026-02-12 21:05:40,024 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 21:06:02,253 [INFO] root: Aplicación cerrada por usuario.
