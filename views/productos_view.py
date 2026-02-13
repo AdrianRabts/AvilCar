@@ -199,9 +199,9 @@ def _crear_tabla(parent: tk.Widget) -> ttk.Treeview:
         elif col in ("ID", "Stock"):
             anchor, width = "center", 90
         elif col == "Nombre":
-            anchor, width = "w", 320
+            anchor, width = "w", 280
         else:
-            anchor, width = "center", 170
+            anchor, width = "center", 150
 
         tabla.heading(col, text=col, anchor=anchor, command=lambda c=col: sort_treeview(tabla, c, False))
         tabla.column(col, width=width, anchor=anchor, stretch=(col in ("Nombre", "Seccion", "Categoria")))
@@ -843,20 +843,35 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
     except Exception:
         pass
 
-    # Aumentar fuentes por defecto para que "se vea más grande"
+    # Ajuste de fuentes (idempotente): aplica una sola vez por proceso.
+    # Evita que al abrir/cerrar la vista las letras sigan creciendo.
     try:
-        default_font = tkfont.nametofont("TkDefaultFont")
-        text_font = tkfont.nametofont("TkTextFont")
-        fixed_font = tkfont.nametofont("TkFixedFont")
-        heading_font = tkfont.nametofont("TkHeadingFont")
-        icon_font = tkfont.nametofont("TkIconFont")
-        menu_font = tkfont.nametofont("TkMenuFont")
-        small_font = tkfont.nametofont("TkSmallCaptionFont")
+        already_scaled = False
+        try:
+            already_scaled = bool(int(root.tk.globalgetvar("avilcar_fonts_scaled")))
+        except Exception:
+            already_scaled = False
 
-        for f in (default_font, text_font, fixed_font, heading_font, icon_font, menu_font, small_font):
-            size = f.cget("size")
+        if not already_scaled:
+            fonts_with_min_size = (
+                ("TkDefaultFont", 13),
+                ("TkTextFont", 13),
+                ("TkFixedFont", 13),
+                ("TkHeadingFont", 13),
+                ("TkIconFont", 12),
+                ("TkMenuFont", 12),
+                ("TkSmallCaptionFont", 11),
+            )
+            for fname, min_size in fonts_with_min_size:
+                try:
+                    f = tkfont.nametofont(fname)
+                    size = int(f.cget("size"))
+                    if size < min_size:
+                        f.configure(size=min_size)
+                except Exception:
+                    pass
             try:
-                f.configure(size=int(size) + 6)
+                root.tk.globalsetvar("avilcar_fonts_scaled", 1)
             except Exception:
                 pass
     except Exception:
@@ -869,8 +884,8 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         estilo.configure(STYLE_DANGER, foreground="white", background="#D9534F")
         estilo.map(STYLE_DANGER, background=[("active", "#c9302c")])
         estilo.configure(STYLE_DEFAULT, foreground="black")
-        estilo.configure("Treeview", rowheight=30)
-        estilo.configure("Treeview.Heading", font=("Segoe UI", 15, "bold"))
+        estilo.configure("Treeview", rowheight=32)
+        estilo.configure("Treeview.Heading", font=("Segoe UI", 13, "bold"))
     except Exception:
         pass
 
@@ -907,10 +922,13 @@ def ventana_productos(parent: tk.Misc | None = None) -> None:
     # Permitir resize y establecer tamaño inicial
     # Permitir resize y establecer tamaño inicial
     try:
-        container.state("zoomed")        # se abre maximizada
-        container.geometry("1900x900")
-        container.minsize(1200, 720)     # tamaño mínimo
-        container.resizable(True, True)  # se puede redimensionar
+        container.geometry("1560x920")
+        container.minsize(1200, 760)
+        container.resizable(True, True)
+        try:
+            container.state("zoomed")
+        except Exception:
+            pass
     except Exception:
         pass
 

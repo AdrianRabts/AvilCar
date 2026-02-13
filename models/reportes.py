@@ -1,5 +1,6 @@
 from database.db import get_connection
 
+
 # ====== REPORTES DE VENTAS ======
 def ventas_totales() -> float:
     """Devuelve la suma total de todas las ventas."""
@@ -12,21 +13,21 @@ def ventas_totales() -> float:
 
 def ventas_por_producto() -> list[tuple]:
     """
-    Devuelve lista de productos con:
-    (id, nombre, unidades_vendidas, total_vendido)
-    Ordenado por total vendido descendente y nombre.
+    Devuelve lista agregada por producto histórico, incluso si el producto fue eliminado.
+    Formato: (producto_id, nombre, unidades_vendidas, total_vendido)
     """
     with get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT p.id,
-                   p.nombre,
-                   COALESCE(SUM(v.cantidad), 0) AS unidades_vendidas,
-                   COALESCE(SUM(v.total), 0)    AS total_vendido
-            FROM productos p
-            LEFT JOIN ventas v ON p.id = v.producto_id
-            GROUP BY p.id, p.nombre
-            ORDER BY total_vendido DESC, p.nombre ASC
+            SELECT
+                v.producto_id,
+                COALESCE(NULLIF(v.producto_nombre, ''), p.nombre, 'Producto eliminado') AS nombre,
+                COALESCE(SUM(v.cantidad), 0) AS unidades_vendidas,
+                COALESCE(SUM(v.total), 0)    AS total_vendido
+            FROM ventas v
+            LEFT JOIN productos p ON p.id = v.producto_id
+            GROUP BY v.producto_id, COALESCE(NULLIF(v.producto_nombre, ''), p.nombre, 'Producto eliminado')
+            ORDER BY total_vendido DESC, nombre ASC
         """)
         filas = cursor.fetchall()
     return [tuple(r) for r in filas] if filas else []
@@ -63,7 +64,7 @@ def movimientos_recientes(limite: int = 100) -> list[tuple]:
         cursor.execute("""
             SELECT m.id,
                    m.producto_id,
-                   p.nombre,
+                   COALESCE(NULLIF(m.producto_nombre, ''), p.nombre, 'Producto eliminado') AS nombre_producto,
                    m.cantidad,
                    m.tipo,
                    m.motivo,
@@ -88,7 +89,7 @@ def ventas_por_periodo(fecha_inicio: str, fecha_fin: str) -> list[tuple]:
         cursor.execute("""
             SELECT v.id,
                    v.producto_id,
-                   p.nombre,
+                   COALESCE(NULLIF(v.producto_nombre, ''), p.nombre, 'Producto eliminado') AS nombre_producto,
                    v.cantidad,
                    v.total,
                    v.fecha
