@@ -41,3 +41,6 @@ _tkinter.TclError: expected floating-point number but got ""
 2026-02-12 19:24:09,153 [INFO] root: Aplicación iniciada.
 2026-02-12 19:24:09,169 [INFO] root: Esquema de base de datos creado/migrado correctamente.
 2026-02-12 19:37:02,193 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 21:05:40,015 [INFO] root: Aplicación iniciada.
+2026-02-12 21:05:40,024 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 21:06:02,253 [INFO] root: Aplicación cerrada por usuario.
