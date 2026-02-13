@@ -26,6 +26,7 @@ def _db_path():
 
     return str(db_file)
 
+
 def get_connection():
     conn = sqlite3.connect(
         _db_path(),
@@ -41,6 +42,7 @@ def get_connection():
     except Exception:
         pass
     return conn
+
 
 # ========================
 # CREACIÓN BASE DE TABLAS
@@ -110,28 +112,32 @@ def create_tables():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS movimientos_stock (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        producto_id INTEGER NOT NULL,
+        producto_id INTEGER,
+        producto_nombre TEXT DEFAULT '',
+        producto_sku TEXT DEFAULT '',
         cantidad INTEGER NOT NULL,
         tipo TEXT NOT NULL CHECK(tipo IN ('entrada','salida')),
         motivo TEXT,
         fecha TEXT NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE CASCADE
+        FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE SET NULL
     )
     """)
 
     cur.execute("""
     CREATE TABLE IF NOT EXISTS ventas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        producto_id INTEGER NOT NULL,
+        producto_id INTEGER,
+        producto_nombre TEXT DEFAULT '',
+        producto_sku TEXT DEFAULT '',
         cantidad INTEGER NOT NULL,
         total REAL NOT NULL,
         fecha TEXT NOT NULL,
         cliente TEXT DEFAULT 'Desconocido',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE CASCADE
+        FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE SET NULL
     )
     """)
 
@@ -143,6 +149,125 @@ def create_tables():
 
     conn.commit()
     conn.close()
+
+
+def _has_fk_set_null(cur: sqlite3.Cursor, table_name: str) -> bool:
+    fks = cur.execute(f"PRAGMA foreign_key_list({table_name})").fetchall()
+    for fk in fks:
+        # id, seq, table, from, to, on_update, on_delete, match
+        if fk[2] == "productos" and fk[3] == "producto_id":
+            return str(fk[6]).upper() == "SET NULL"
+    return False
+
+
+def _column_is_nullable(cur: sqlite3.Cursor, table_name: str, column_name: str) -> bool:
+    cols = cur.execute(f"PRAGMA table_info({table_name})").fetchall()
+    for col in cols:
+        # cid, name, type, notnull, dflt_value, pk
+        if col[1] == column_name:
+            return int(col[3]) == 0
+    return False
+
+
+def _rebuild_ventas_table(cur: sqlite3.Cursor):
+    cur.executescript("""
+    ALTER TABLE ventas RENAME TO ventas_old;
+    CREATE TABLE ventas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        producto_id INTEGER,
+        producto_nombre TEXT DEFAULT '',
+        producto_sku TEXT DEFAULT '',
+        cantidad INTEGER NOT NULL,
+        total REAL NOT NULL,
+        fecha TEXT NOT NULL,
+        cliente TEXT DEFAULT 'Desconocido',
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE SET NULL
+    );
+    """)
+
+    old_cols = {r["name"] for r in cur.execute("PRAGMA table_info(ventas_old)")}
+    has_nombre = "producto_nombre" in old_cols
+    has_sku = "producto_sku" in old_cols
+
+    nombre_expr = "COALESCE(v.producto_nombre, p.nombre, 'Producto eliminado')" if has_nombre else "COALESCE(p.nombre, 'Producto eliminado')"
+    sku_expr = "COALESCE(v.producto_sku, p.sku, '')" if has_sku else "COALESCE(p.sku, '')"
+
+    cur.execute(f"""
+        INSERT INTO ventas (
+            id, producto_id, producto_nombre, producto_sku,
+            cantidad, total, fecha, cliente, created_at, updated_at
+        )
+        SELECT
+            v.id,
+            v.producto_id,
+            {nombre_expr},
+            {sku_expr},
+            v.cantidad,
+            v.total,
+            v.fecha,
+            COALESCE(v.cliente, 'Desconocido'),
+            COALESCE(v.created_at, CURRENT_TIMESTAMP),
+            COALESCE(v.updated_at, CURRENT_TIMESTAMP)
+        FROM ventas_old v
+        LEFT JOIN productos p ON p.id = v.producto_id
+        ORDER BY v.id
+    """)
+
+    cur.execute("DROP TABLE ventas_old")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ventas_producto_fecha ON ventas(producto_id, fecha)")
+
+
+def _rebuild_movimientos_table(cur: sqlite3.Cursor):
+    cur.executescript("""
+    ALTER TABLE movimientos_stock RENAME TO movimientos_stock_old;
+    CREATE TABLE movimientos_stock (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        producto_id INTEGER,
+        producto_nombre TEXT DEFAULT '',
+        producto_sku TEXT DEFAULT '',
+        cantidad INTEGER NOT NULL,
+        tipo TEXT NOT NULL CHECK(tipo IN ('entrada','salida')),
+        motivo TEXT,
+        fecha TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(producto_id) REFERENCES productos(id) ON DELETE SET NULL
+    );
+    """)
+
+    old_cols = {r["name"] for r in cur.execute("PRAGMA table_info(movimientos_stock_old)")}
+    has_nombre = "producto_nombre" in old_cols
+    has_sku = "producto_sku" in old_cols
+
+    nombre_expr = "COALESCE(m.producto_nombre, p.nombre, 'Producto eliminado')" if has_nombre else "COALESCE(p.nombre, 'Producto eliminado')"
+    sku_expr = "COALESCE(m.producto_sku, p.sku, '')" if has_sku else "COALESCE(p.sku, '')"
+
+    cur.execute(f"""
+        INSERT INTO movimientos_stock (
+            id, producto_id, producto_nombre, producto_sku,
+            cantidad, tipo, motivo, fecha, created_at, updated_at
+        )
+        SELECT
+            m.id,
+            m.producto_id,
+            {nombre_expr},
+            {sku_expr},
+            m.cantidad,
+            m.tipo,
+            m.motivo,
+            m.fecha,
+            COALESCE(m.created_at, CURRENT_TIMESTAMP),
+            COALESCE(m.updated_at, CURRENT_TIMESTAMP)
+        FROM movimientos_stock_old m
+        LEFT JOIN productos p ON p.id = m.producto_id
+        ORDER BY m.id
+    """)
+
+    cur.execute("DROP TABLE movimientos_stock_old")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_movimientos_producto_fecha ON movimientos_stock(producto_id, fecha)")
+
 
 # ========================
 # MIGRACIÓN: COLUMNAS Y TRIGGERS
@@ -170,10 +295,14 @@ def migrate_schema():
             "updated_at": "TEXT DEFAULT CURRENT_TIMESTAMP",
         },
         "movimientos_stock": {
+            "producto_nombre": "TEXT DEFAULT ''",
+            "producto_sku": "TEXT DEFAULT ''",
             "created_at": "TEXT DEFAULT CURRENT_TIMESTAMP",
             "updated_at": "TEXT DEFAULT CURRENT_TIMESTAMP",
         },
         "ventas": {
+            "producto_nombre": "TEXT DEFAULT ''",
+            "producto_sku": "TEXT DEFAULT ''",
             "cliente": "TEXT DEFAULT 'Desconocido'",
             "created_at": "TEXT DEFAULT CURRENT_TIMESTAMP",
             "updated_at": "TEXT DEFAULT CURRENT_TIMESTAMP",
@@ -186,7 +315,47 @@ def migrate_schema():
             if col not in existentes:
                 cur.execute(f"ALTER TABLE {tabla} ADD COLUMN {col} {ddl}")
 
-    # 3) Triggers seguros para updated_at
+    # 3) Rebuild tablas históricas para conservar ventas/movimientos cuando se elimina un producto
+    #    y dejar FK como ON DELETE SET NULL.
+    needs_rebuild_ventas = (not _has_fk_set_null(cur, "ventas")) or (not _column_is_nullable(cur, "ventas", "producto_id"))
+    needs_rebuild_movs = (not _has_fk_set_null(cur, "movimientos_stock")) or (not _column_is_nullable(cur, "movimientos_stock", "producto_id"))
+
+    if needs_rebuild_ventas or needs_rebuild_movs:
+        cur.execute("PRAGMA foreign_keys = OFF")
+        try:
+            if needs_rebuild_ventas:
+                _rebuild_ventas_table(cur)
+            if needs_rebuild_movs:
+                _rebuild_movimientos_table(cur)
+        finally:
+            cur.execute("PRAGMA foreign_keys = ON")
+
+    # 4) Backfill nombres/SKU históricos faltantes (sin sobreescribir datos ya guardados)
+    cur.execute("""
+        UPDATE ventas
+        SET producto_nombre = COALESCE(NULLIF(producto_nombre, ''), (
+                SELECT COALESCE(nombre, 'Producto eliminado')
+                FROM productos p WHERE p.id = ventas.producto_id
+            ), 'Producto eliminado'),
+            producto_sku = COALESCE(NULLIF(producto_sku, ''), (
+                SELECT COALESCE(sku, '')
+                FROM productos p WHERE p.id = ventas.producto_id
+            ), '')
+    """)
+
+    cur.execute("""
+        UPDATE movimientos_stock
+        SET producto_nombre = COALESCE(NULLIF(producto_nombre, ''), (
+                SELECT COALESCE(nombre, 'Producto eliminado')
+                FROM productos p WHERE p.id = movimientos_stock.producto_id
+            ), 'Producto eliminado'),
+            producto_sku = COALESCE(NULLIF(producto_sku, ''), (
+                SELECT COALESCE(sku, '')
+                FROM productos p WHERE p.id = movimientos_stock.producto_id
+            ), '')
+    """)
+
+    # 5) Triggers seguros para updated_at
     cur.executescript("""
     CREATE TRIGGER IF NOT EXISTS trg_productos_updated_at
     AFTER UPDATE ON productos
@@ -221,6 +390,7 @@ def migrate_schema():
 
     conn.commit()
     conn.close()
+
 
 # ========================
 # INICIALIZACIÓN
