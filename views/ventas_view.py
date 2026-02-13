@@ -117,6 +117,11 @@ class SalesView:
         except Exception:
             pass
 
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
         # Estado
         self._rows: List[Dict[str, Any]] = []
         self._by_id: Dict[int, Dict[str, Any]] = {}
@@ -178,7 +183,7 @@ class SalesView:
         self.root.option_add("*Font", ("Segoe UI", 12))
 
         style.configure("Big.TLabel", font=("Segoe UI", 16, "bold"))
-        style.configure("Total.TLabel", font=("Segoe UI", 22, "bold"))
+        style.configure("Total.TLabel", font=("Segoe UI", 20, "bold"))
 
     # ----------------------
     # UI
@@ -311,13 +316,13 @@ class SalesView:
 
     # Carrito + totales
     def _build_cart(self, parent: tk.Misc):
-        top = ttk.Frame(parent)
-        top.pack(fill="both", expand=True, padx=10, pady=10)
-        top.rowconfigure(0, weight=1)
-        top.columnconfigure(0, weight=1)
+        content = ttk.Frame(parent)
+        content.pack(fill="both", expand=True, padx=10, pady=8)
+        content.columnconfigure(0, weight=1)
+        content.rowconfigure(0, weight=1)
 
         cols = ["id", "nombre", "cant", "precio", "subtotal"]
-        self.cart = ttk.Treeview(top, columns=cols, show="headings", selectmode="browse")
+        self.cart = ttk.Treeview(content, columns=cols, show="headings", selectmode="browse")
         for c, h, w in [
             ("id", "ID", 60),
             ("nombre", "Producto", 320),
@@ -328,13 +333,13 @@ class SalesView:
             self.cart.heading(c, text=h, anchor="w")
             self.cart.column(c, width=w, stretch=(c == "nombre"))
 
-        vsb = ttk.Scrollbar(top, orient="vertical", command=self.cart.yview)
+        vsb = ttk.Scrollbar(content, orient="vertical", command=self.cart.yview)
         self.cart.configure(yscroll=vsb.set)
         self.cart.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
 
-        actions = ttk.Frame(parent)
-        actions.pack(fill="x", padx=10, pady=(0, 10))
+        actions = ttk.Frame(content)
+        actions.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 8))
         actions.columnconfigure(5, weight=1)
 
         ttk.Button(actions, text="Quitar", style="Danger.TButton", command=self._cart_remove_selected).grid(row=0, column=0, padx=(0, 6), pady=2, sticky="ew")
@@ -347,12 +352,15 @@ class SalesView:
 
         ttk.Button(actions, text="Registrar venta", style="Primary.TButton", command=self._register_sale).grid(row=0, column=6, pady=2, sticky="e")
 
-        totals = ttk.Frame(parent)
-        totals.pack(fill="x", padx=10, pady=(0, 10))
+        totals = ttk.Frame(content)
+        totals.grid(row=2, column=0, columnspan=2, sticky="ew")
+        totals.columnconfigure(0, weight=1)
+        totals.columnconfigure(1, weight=1)
+        totals.columnconfigure(2, weight=2)
 
         # Descuento
         box_desc = ttk.Labelframe(totals, text="Descuento", padding=8)
-        box_desc.pack(side="left", padx=(0, 12))
+        box_desc.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
         rb_none = ttk.Radiobutton(box_desc, text="Sin descuento", value="none", variable=self.desc_mode_var, command=self._recalc_totals)
         rb_pct = ttk.Radiobutton(box_desc, text="%", value="pct", variable=self.desc_mode_var, command=self._recalc_totals)
         rb_abs = ttk.Radiobutton(box_desc, text="$", value="abs", variable=self.desc_mode_var, command=self._recalc_totals)
@@ -366,7 +374,7 @@ class SalesView:
 
         # IVA
         box_tax = ttk.Labelframe(totals, text="IVA", padding=8)
-        box_tax.pack(side="left", padx=(0, 12))
+        box_tax.grid(row=0, column=1, sticky="nsew", padx=(0, 8))
         chk = ttk.Checkbutton(box_tax, text="Aplicar", variable=self.apply_iva_var, command=self._recalc_totals)
         chk.grid(row=0, column=0, sticky="w")
         ttk.Label(box_tax, text="%:").grid(row=0, column=1, padx=(8, 4))
@@ -377,7 +385,7 @@ class SalesView:
 
         # Resumen
         box_sum = ttk.Labelframe(totals, text="Resumen", padding=8)
-        box_sum.pack(side="right", fill="x", expand=True)
+        box_sum.grid(row=0, column=2, sticky="nsew")
 
         def row(parent, r, label, var, style=None):
             ttk.Label(parent, text=label).grid(row=r, column=0, sticky="e", padx=(0, 8))
