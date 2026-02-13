@@ -132,6 +132,11 @@ class SalesView:
         except Exception:
             pass
 
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
         # Estado
         self._rows: List[Dict[str, Any]] = []
         self._by_id: Dict[int, Dict[str, Any]] = {}
@@ -200,7 +205,7 @@ class SalesView:
     # ----------------------
     def _build_ui(self):
         paned = ttk.Panedwindow(self.root, orient="horizontal")
-        paned.pack(fill="both", expand=True, padx=10, pady=(10, 20))
+        paned.pack(fill="both", expand=True, padx=10, pady=(10, 28))
 
         # Izquierda: filtros + lista
         left = ttk.Frame(paned)
@@ -327,12 +332,12 @@ class SalesView:
     # Carrito + totales
     def _build_cart(self, parent: tk.Misc):
         content = ttk.Frame(parent)
-        content.pack(fill="both", expand=True, padx=10, pady=(8, 6))
+        content.pack(fill="both", expand=True, padx=10, pady=(8, 4))
         content.columnconfigure(0, weight=1)
         content.rowconfigure(0, weight=1)
 
         cols = ["id", "nombre", "cant", "precio", "subtotal"]
-        self.cart = ttk.Treeview(content, columns=cols, show="headings", selectmode="browse", height=10)
+        self.cart = ttk.Treeview(content, columns=cols, show="headings", selectmode="browse", height=9)
         for c, h, w in [
             ("id", "ID", 60),
             ("nombre", "Producto", 320),
@@ -349,7 +354,7 @@ class SalesView:
         vsb.grid(row=0, column=1, sticky="ns")
 
         actions = ttk.Frame(content)
-        actions.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 6))
+        actions.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(6, 4))
         actions.columnconfigure(5, weight=1)
 
         ttk.Button(actions, text="Quitar", style="Danger.TButton", command=self._cart_remove_selected).grid(row=0, column=0, padx=(0, 6), pady=2, sticky="ew")
@@ -363,7 +368,7 @@ class SalesView:
         ttk.Button(actions, text="Registrar venta", style="Primary.TButton", command=self._register_sale).grid(row=0, column=6, pady=2, sticky="e")
 
         totals = ttk.Frame(content)
-        totals.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 4))
+        totals.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 2))
         totals.columnconfigure(0, weight=1)
         totals.columnconfigure(1, weight=1)
         totals.columnconfigure(2, weight=2)
