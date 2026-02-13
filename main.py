@@ -21,9 +21,9 @@ PRESSED_COLOR = "#1c3aa9"
 BG_COLOR = "#f3f4f6"
 TEXT_COLOR = "#111827"
 FOOTER_COLOR = "#6b7280"
-BTN_FONT = ("Segoe UI", 13, "bold")
-TITLE_FONT = ("Segoe UI", 26, "bold")
-FOOTER_FONT = ("Segoe UI", 9, "italic")
+BTN_FONT = ("Segoe UI", 16, "bold")
+TITLE_FONT = ("Segoe UI", 30, "bold")
+FOOTER_FONT = ("Segoe UI", 10, "italic")
 
 # ======================== RUTAS ========================
 ASSETS_PATH = os.path.join(os.path.abspath("."), "assets")  # Para imágenes, iconos, etc.
@@ -78,7 +78,7 @@ def init_style(root: tk.Tk):
 
     style.configure(
         "Modern.TButton",
-        padding=16,
+        padding=20,
         font=BTN_FONT,
         relief="flat",
         background=PRIMARY_COLOR,
@@ -96,8 +96,8 @@ def init_style(root: tk.Tk):
     style.configure("Footer.TLabel", font=FOOTER_FONT, background=BG_COLOR, foreground=FOOTER_COLOR)
 
     root.option_add("*TButton.focusHighlight", "0")
-    root.option_add("*Font", ("Segoe UI", 10))
-    root.option_add("*Label.Font", ("Segoe UI", 10))
+    root.option_add("*Font", ("Segoe UI", 12))
+    root.option_add("*Label.Font", ("Segoe UI", 12))
 
 # ======================== TOOLTIP ========================
 class ToolTip:
@@ -248,7 +248,7 @@ def init_ui(root: tk.Tk):
             child.grid_forget()
         rows = (len(botones_widgets) + cols - 1) // cols
         for r in range(rows):
-            botones_frame.rowconfigure(r, weight=1, minsize=80)
+            botones_frame.rowconfigure(r, weight=1, minsize=120)
         for idx, btn in enumerate(botones_widgets):
             col = idx % cols
             row = idx // cols

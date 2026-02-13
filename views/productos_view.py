@@ -199,9 +199,9 @@ def _crear_tabla(parent: tk.Widget) -> ttk.Treeview:
         elif col in ("ID", "Stock"):
             anchor, width = "center", 90
         elif col == "Nombre":
-            anchor, width = "w", 320
+            anchor, width = "w", 280
         else:
-            anchor, width = "center", 170
+            anchor, width = "center", 150
 
         tabla.heading(col, text=col, anchor=anchor, command=lambda c=col: sort_treeview(tabla, c, False))
         tabla.column(col, width=width, anchor=anchor, stretch=(col in ("Nombre", "Seccion", "Categoria")))
@@ -853,10 +853,12 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         menu_font = tkfont.nametofont("TkMenuFont")
         small_font = tkfont.nametofont("TkSmallCaptionFont")
 
+        # Incremento moderado para evitar desbordes y saltos de layout.
+        font_bump = 4
         for f in (default_font, text_font, fixed_font, heading_font, icon_font, menu_font, small_font):
             size = f.cget("size")
             try:
-                f.configure(size=int(size) + 6)
+                f.configure(size=int(size) + font_bump)
             except Exception:
                 pass
     except Exception:
@@ -869,8 +871,8 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         estilo.configure(STYLE_DANGER, foreground="white", background="#D9534F")
         estilo.map(STYLE_DANGER, background=[("active", "#c9302c")])
         estilo.configure(STYLE_DEFAULT, foreground="black")
-        estilo.configure("Treeview", rowheight=30)
-        estilo.configure("Treeview.Heading", font=("Segoe UI", 15, "bold"))
+        estilo.configure("Treeview", rowheight=32)
+        estilo.configure("Treeview.Heading", font=("Segoe UI", 13, "bold"))
     except Exception:
         pass
 
@@ -907,10 +909,13 @@ def ventana_productos(parent: tk.Misc | None = None) -> None:
     # Permitir resize y establecer tamaño inicial
     # Permitir resize y establecer tamaño inicial
     try:
-        container.state("zoomed")        # se abre maximizada
-        container.geometry("1900x900")
-        container.minsize(1200, 720)     # tamaño mínimo
-        container.resizable(True, True)  # se puede redimensionar
+        container.geometry("1560x920")
+        container.minsize(1200, 760)
+        container.resizable(True, True)
+        try:
+            container.state("zoomed")
+        except Exception:
+            pass
     except Exception:
         pass
 
