@@ -97,13 +97,18 @@ class SalesView:
         self.owner = owner
         self.root = tk.Toplevel(owner) if owner is not None else tk.Tk()
         self.root.title("Ventas")
-        self.root.geometry("1900x800")
-        self.root.minsize(1150, 720)
+        self.root.geometry("1480x900")
+        self.root.minsize(1180, 740)
         self.root.configure(bg="#f6f7fb")
         if owner is not None:
             self.root.transient(owner)
             try:
                 self.root.grab_set()  # experiencia modal suave
+            except Exception:
+                pass
+        else:
+            try:
+                self.root.state("zoomed")
             except Exception:
                 pass
 
@@ -161,10 +166,14 @@ class SalesView:
 
         style.configure("Secondary.TButton", padding=(10, 6))
         style.configure("Panel.TLabelframe", background="#ffffff")
-        style.configure("Panel.TLabelframe.Label", font=("Segoe UI", 11, "bold"))
+        style.configure("Panel.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+        style.configure("Treeview", rowheight=30, font=("Segoe UI", 11))
+        style.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
 
-        style.configure("Big.TLabel", font=("Segoe UI", 14, "bold"))
-        style.configure("Total.TLabel", font=("Segoe UI", 18, "bold"))
+        self.root.option_add("*Font", ("Segoe UI", 11))
+
+        style.configure("Big.TLabel", font=("Segoe UI", 15, "bold"))
+        style.configure("Total.TLabel", font=("Segoe UI", 20, "bold"))
 
     # ----------------------
     # UI
