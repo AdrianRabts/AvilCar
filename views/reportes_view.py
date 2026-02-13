@@ -25,16 +25,20 @@ def ventana_reportes(master=None):
         root = tk.Toplevel(master)
 
     root.title("Inventario - Reportes")
-    root.geometry("1300x820")
-    root.minsize(1040, 680)
+    root.geometry("1480x900")
+    root.minsize(1180, 740)
 
     estilo = ttk.Style()
     try:
         estilo.theme_use("clam")
     except Exception:
         pass
-    estilo.configure("TButton", padding=(6, 4))
-    estilo.configure("Treeview", rowheight=24)
+    estilo.configure("TButton", padding=(10, 6), font=("Segoe UI", 11, "bold"))
+    estilo.configure("TLabel", font=("Segoe UI", 11))
+    estilo.configure("TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+    estilo.configure("Treeview", rowheight=30, font=("Segoe UI", 11))
+    estilo.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+    root.option_add("*Font", ("Segoe UI", 11))
 
     # ------------- UTILIDADES UI -------------
     def build_tree(parent, columns, height=12, stretch=True):
@@ -166,7 +170,7 @@ def ventana_reportes(master=None):
 
     # ------------- TOOLBAR SUPERIOR -------------
     toolbar = ttk.Frame(root)
-    toolbar.pack(fill="x", padx=10, pady=8)
+    toolbar.pack(fill="x", padx=12, pady=10)
     toolbar.columnconfigure(0, weight=1)
     toolbar.columnconfigure(1, weight=1)
 
@@ -180,7 +184,7 @@ def ventana_reportes(master=None):
     btn_actualizar.pack(side="left", padx=4)
 
     ttk.Label(toolbar_left, text="Auto-actualizar (seg):").pack(side="left", padx=(12, 4))
-    spin_intervalo = ttk.Spinbox(toolbar_left, from_=5, to=3600, width=6)
+    spin_intervalo = ttk.Spinbox(toolbar_left, from_=5, to=3600, width=7)
     spin_intervalo.set("30")
     spin_intervalo.pack(side="left", padx=4)
 
@@ -196,7 +200,7 @@ def ventana_reportes(master=None):
 
     # ------------- NOTEBOOK -------------
     notebook = ttk.Notebook(root)
-    notebook.pack(fill="both", expand=True, padx=10, pady=8)
+    notebook.pack(fill="both", expand=True, padx=12, pady=8)
 
     # ----- TAB KPI + RESUMEN -----
     tab_resumen = ttk.Frame(notebook)
@@ -204,11 +208,12 @@ def ventana_reportes(master=None):
 
     # KPIs
     kpi_frame = ttk.Frame(tab_resumen)
-    kpi_frame.pack(fill="x", pady=6)
+    kpi_frame.pack(fill="x", pady=8)
+    kpi_frame.columnconfigure((0, 1, 2), weight=1)
 
     def kpi_label(parent, titulo):
         fr = ttk.LabelFrame(parent, text=titulo)
-        val = ttk.Label(fr, text="--", font=("Segoe UI", 16, "bold"))
+        val = ttk.Label(fr, text="--", font=("Segoe UI", 18, "bold"))
         val.pack(padx=10, pady=10)
         return fr, val
 
@@ -216,12 +221,12 @@ def ventana_reportes(master=None):
     kpi_mes_f, kpi_mes_val = kpi_label(kpi_frame, "Ventas del mes")
     kpi_vs_f, kpi_vs_val = kpi_label(kpi_frame, "Vs mes anterior")
 
-    kpi_hoy_f.pack(side="left", padx=6)
-    kpi_mes_f.pack(side="left", padx=6)
-    kpi_vs_f.pack(side="left", padx=6)
+    kpi_hoy_f.grid(row=0, column=0, padx=6, sticky="nsew")
+    kpi_mes_f.grid(row=0, column=1, padx=6, sticky="nsew")
+    kpi_vs_f.grid(row=0, column=2, padx=6, sticky="nsew")
 
     # Total general
-    lbl_total = ttk.Label(tab_resumen, text="Ventas Totales: --", font=("Segoe UI", 12, "bold"))
+    lbl_total = ttk.Label(tab_resumen, text="Ventas Totales: --", font=("Segoe UI", 13, "bold"))
     lbl_total.pack(pady=6, anchor="w")
 
     cols_resumen = ("ID", "Nombre", "Unidades Vendidas", "Total Vendido")
@@ -232,31 +237,34 @@ def ventana_reportes(master=None):
     notebook.add(tab_hist, text="Historial Ventas")
 
     filtros = ttk.LabelFrame(tab_hist, text="Filtros")
-    filtros.pack(fill="x", padx=4, pady=4)
+    filtros.pack(fill="x", padx=6, pady=6)
 
-    ttk.Label(filtros, text="Desde (YYYY-MM-DD):").grid(row=0, column=0, padx=4, pady=4, sticky="w")
-    entry_desde = ttk.Entry(filtros, width=12)
-    entry_desde.grid(row=0, column=1, padx=4, pady=4)
+    for col in (1, 3, 5, 7, 9):
+        filtros.columnconfigure(col, weight=1)
 
-    ttk.Label(filtros, text="Hasta (YYYY-MM-DD):").grid(row=0, column=2, padx=4, pady=4, sticky="w")
-    entry_hasta = ttk.Entry(filtros, width=12)
-    entry_hasta.grid(row=0, column=3, padx=4, pady=4)
+    ttk.Label(filtros, text="Desde (YYYY-MM-DD):").grid(row=0, column=0, padx=6, pady=6, sticky="w")
+    entry_desde = ttk.Entry(filtros, width=14)
+    entry_desde.grid(row=0, column=1, padx=6, pady=6, sticky="ew")
 
-    ttk.Label(filtros, text="Cliente:").grid(row=0, column=4, padx=4, pady=4, sticky="w")
-    entry_cliente = ttk.Entry(filtros, width=18)
-    entry_cliente.grid(row=0, column=5, padx=4, pady=4)
+    ttk.Label(filtros, text="Hasta (YYYY-MM-DD):").grid(row=0, column=2, padx=6, pady=6, sticky="w")
+    entry_hasta = ttk.Entry(filtros, width=14)
+    entry_hasta.grid(row=0, column=3, padx=6, pady=6, sticky="ew")
 
-    ttk.Label(filtros, text="Buscar en nombre:").grid(row=0, column=6, padx=4, pady=4, sticky="w")
-    entry_buscar = ttk.Entry(filtros, width=18)
-    entry_buscar.grid(row=0, column=7, padx=4, pady=4)
+    ttk.Label(filtros, text="Cliente:").grid(row=0, column=4, padx=6, pady=6, sticky="w")
+    entry_cliente = ttk.Entry(filtros, width=20)
+    entry_cliente.grid(row=0, column=5, padx=6, pady=6, sticky="ew")
 
-    ttk.Label(filtros, text="Tamaño página:").grid(row=0, column=8, padx=4, pady=4, sticky="w")
-    spin_pagsize = ttk.Spinbox(filtros, from_=10, to=500, width=5)
+    ttk.Label(filtros, text="Buscar en nombre:").grid(row=1, column=0, padx=6, pady=6, sticky="w")
+    entry_buscar = ttk.Entry(filtros, width=24)
+    entry_buscar.grid(row=1, column=1, columnspan=3, padx=6, pady=6, sticky="ew")
+
+    ttk.Label(filtros, text="Tamaño página:").grid(row=1, column=4, padx=6, pady=6, sticky="w")
+    spin_pagsize = ttk.Spinbox(filtros, from_=10, to=500, width=7)
     spin_pagsize.set("50")
-    spin_pagsize.grid(row=0, column=9, padx=4, pady=4)
+    spin_pagsize.grid(row=1, column=5, padx=6, pady=6, sticky="w")
 
-    ttk.Button(filtros, text="Aplicar", command=lambda: aplicar_filtros_hist(reset_page=True)).grid(row=0, column=10, padx=4, pady=4)
-    ttk.Button(filtros, text="Limpiar", command=lambda: limpiar_filtros_hist()).grid(row=0, column=11, padx=4, pady=4)
+    ttk.Button(filtros, text="Aplicar", command=lambda: aplicar_filtros_hist(reset_page=True)).grid(row=1, column=8, padx=6, pady=6)
+    ttk.Button(filtros, text="Limpiar", command=lambda: limpiar_filtros_hist()).grid(row=1, column=9, padx=6, pady=6)
 
     cols_hist = ("ID", "Producto ID", "Nombre", "Cantidad", "Total", "Fecha", "Cliente")
     tv_hist = build_tree(tab_hist, cols_hist, height=18)
@@ -275,18 +283,19 @@ def ventana_reportes(master=None):
     notebook.add(tab_mensual, text="Reporte Mensual")
 
     controls_m = ttk.LabelFrame(tab_mensual, text="Parámetros")
-    controls_m.pack(fill="x", padx=6, pady=6)
+    controls_m.pack(fill="x", padx=8, pady=8)
+    controls_m.columnconfigure(1, weight=1)
 
-    ttk.Label(controls_m, text="Año:").pack(side="left", padx=4)
-    combo_anio = ttk.Combobox(controls_m, state="readonly", width=8, values=[])
-    combo_anio.pack(side="left", padx=4)
+    ttk.Label(controls_m, text="Año:").grid(row=0, column=0, padx=6, pady=6, sticky="w")
+    combo_anio = ttk.Combobox(controls_m, state="readonly", width=10, values=[])
+    combo_anio.grid(row=0, column=1, padx=6, pady=6, sticky="w")
 
-    ttk.Label(controls_m, text="Meta mensual (umbral):").pack(side="left", padx=8)
-    entry_meta_mensual = ttk.Entry(controls_m, width=10)
+    ttk.Label(controls_m, text="Meta mensual (umbral):").grid(row=0, column=2, padx=6, pady=6, sticky="w")
+    entry_meta_mensual = ttk.Entry(controls_m, width=12)
     entry_meta_mensual.insert(0, "1000")
-    entry_meta_mensual.pack(side="left", padx=4)
+    entry_meta_mensual.grid(row=0, column=3, padx=6, pady=6, sticky="w")
 
-    ttk.Button(controls_m, text="Aplicar", command=lambda: dibujar_grafico_mensual()).pack(side="left", padx=8)
+    ttk.Button(controls_m, text="Aplicar", command=lambda: dibujar_grafico_mensual()).grid(row=0, column=4, padx=10, pady=6, sticky="w")
 
     graf_container = ttk.Frame(tab_mensual)
     graf_container.pack(fill="both", expand=True, padx=6, pady=6)
@@ -305,20 +314,20 @@ def ventana_reportes(master=None):
     tab_mov = ttk.Frame(notebook)
     notebook.add(tab_mov, text="Movimientos / Stock")
 
-    ttk.Label(tab_mov, text="Movimientos recientes").pack(pady=6, anchor="w")
+    ttk.Label(tab_mov, text="Movimientos recientes", font=("Segoe UI", 12, "bold")).pack(pady=6, anchor="w")
     cols_m = ("ID", "Producto ID", "Nombre", "Cantidad", "Tipo", "Motivo", "Fecha")
-    tv_mov = build_tree(tab_mov, cols_m, height=12)
+    tv_mov = build_tree(tab_mov, cols_m, height=11)
 
     frame_stock = ttk.LabelFrame(tab_mov, text="Stock crítico")
     frame_stock.pack(pady=8, fill="x")
-    ttk.Label(frame_stock, text="Umbral stock ≤").pack(side="left", padx=6)
-    entry_umbral = ttk.Entry(frame_stock, width=6)
+    ttk.Label(frame_stock, text="Umbral stock ≤").pack(side="left", padx=8)
+    entry_umbral = ttk.Entry(frame_stock, width=8)
     entry_umbral.insert(0, "5")
-    entry_umbral.pack(side="left", padx=6)
-    ttk.Button(frame_stock, text="Mostrar", command=lambda: cargar_bajo_stock()).pack(side="left", padx=6)
+    entry_umbral.pack(side="left", padx=8)
+    ttk.Button(frame_stock, text="Mostrar", command=lambda: cargar_bajo_stock()).pack(side="left", padx=8)
 
     cols2 = ("ID", "Nombre", "Stock")
-    tv_stock = build_tree(tab_mov, cols2, height=10)
+    tv_stock = build_tree(tab_mov, cols2, height=9)
 
     # ------------- ESTADO -------------
     ventas_hist_todas = []

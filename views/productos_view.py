@@ -854,7 +854,7 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         small_font = tkfont.nametofont("TkSmallCaptionFont")
 
         # Incremento moderado para evitar desbordes y saltos de layout.
-        font_bump = 2
+        font_bump = 4
         for f in (default_font, text_font, fixed_font, heading_font, icon_font, menu_font, small_font):
             size = f.cget("size")
             try:
@@ -871,8 +871,8 @@ def _apply_fonts_and_styles(root: tk.Misc) -> None:
         estilo.configure(STYLE_DANGER, foreground="white", background="#D9534F")
         estilo.map(STYLE_DANGER, background=[("active", "#c9302c")])
         estilo.configure(STYLE_DEFAULT, foreground="black")
-        estilo.configure("Treeview", rowheight=28)
-        estilo.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+        estilo.configure("Treeview", rowheight=32)
+        estilo.configure("Treeview.Heading", font=("Segoe UI", 13, "bold"))
     except Exception:
         pass
 
