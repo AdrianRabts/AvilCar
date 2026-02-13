@@ -97,8 +97,8 @@ class SalesView:
         self.owner = owner
         self.root = tk.Toplevel(owner) if owner is not None else tk.Tk()
         self.root.title("Ventas")
-        self.root.geometry("1560x920")
-        self.root.minsize(1220, 780)
+        self.root.geometry("1500x860")
+        self.root.minsize(1180, 720)
         self.root.configure(bg="#f6f7fb")
         if owner is not None:
             self.root.transient(owner)
@@ -111,6 +111,11 @@ class SalesView:
                 self.root.state("zoomed")
             except Exception:
                 pass
+
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
 
         try:
             self.root.state("zoomed")
@@ -183,14 +188,14 @@ class SalesView:
         self.root.option_add("*Font", ("Segoe UI", 12))
 
         style.configure("Big.TLabel", font=("Segoe UI", 16, "bold"))
-        style.configure("Total.TLabel", font=("Segoe UI", 20, "bold"))
+        style.configure("Total.TLabel", font=("Segoe UI", 18, "bold"))
 
     # ----------------------
     # UI
     # ----------------------
     def _build_ui(self):
         paned = ttk.Panedwindow(self.root, orient="horizontal")
-        paned.pack(fill="both", expand=True, padx=10, pady=10)
+        paned.pack(fill="both", expand=True, padx=10, pady=(10, 20))
 
         # Izquierda: filtros + lista
         left = ttk.Frame(paned)
@@ -317,12 +322,12 @@ class SalesView:
     # Carrito + totales
     def _build_cart(self, parent: tk.Misc):
         content = ttk.Frame(parent)
-        content.pack(fill="both", expand=True, padx=10, pady=8)
+        content.pack(fill="both", expand=True, padx=10, pady=(8, 6))
         content.columnconfigure(0, weight=1)
         content.rowconfigure(0, weight=1)
 
         cols = ["id", "nombre", "cant", "precio", "subtotal"]
-        self.cart = ttk.Treeview(content, columns=cols, show="headings", selectmode="browse")
+        self.cart = ttk.Treeview(content, columns=cols, show="headings", selectmode="browse", height=10)
         for c, h, w in [
             ("id", "ID", 60),
             ("nombre", "Producto", 320),
@@ -339,7 +344,7 @@ class SalesView:
         vsb.grid(row=0, column=1, sticky="ns")
 
         actions = ttk.Frame(content)
-        actions.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 8))
+        actions.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 6))
         actions.columnconfigure(5, weight=1)
 
         ttk.Button(actions, text="Quitar", style="Danger.TButton", command=self._cart_remove_selected).grid(row=0, column=0, padx=(0, 6), pady=2, sticky="ew")
@@ -353,13 +358,13 @@ class SalesView:
         ttk.Button(actions, text="Registrar venta", style="Primary.TButton", command=self._register_sale).grid(row=0, column=6, pady=2, sticky="e")
 
         totals = ttk.Frame(content)
-        totals.grid(row=2, column=0, columnspan=2, sticky="ew")
+        totals.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 4))
         totals.columnconfigure(0, weight=1)
         totals.columnconfigure(1, weight=1)
         totals.columnconfigure(2, weight=2)
 
         # Descuento
-        box_desc = ttk.Labelframe(totals, text="Descuento", padding=8)
+        box_desc = ttk.Labelframe(totals, text="Descuento", padding=6)
         box_desc.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
         rb_none = ttk.Radiobutton(box_desc, text="Sin descuento", value="none", variable=self.desc_mode_var, command=self._recalc_totals)
         rb_pct = ttk.Radiobutton(box_desc, text="%", value="pct", variable=self.desc_mode_var, command=self._recalc_totals)
@@ -373,7 +378,7 @@ class SalesView:
             w.bind("<KeyRelease>", lambda e: self._recalc_totals())
 
         # IVA
-        box_tax = ttk.Labelframe(totals, text="IVA", padding=8)
+        box_tax = ttk.Labelframe(totals, text="IVA", padding=6)
         box_tax.grid(row=0, column=1, sticky="nsew", padx=(0, 8))
         chk = ttk.Checkbutton(box_tax, text="Aplicar", variable=self.apply_iva_var, command=self._recalc_totals)
         chk.grid(row=0, column=0, sticky="w")
@@ -384,7 +389,7 @@ class SalesView:
             w.bind("<KeyRelease>", lambda e: self._recalc_totals())
 
         # Resumen
-        box_sum = ttk.Labelframe(totals, text="Resumen", padding=8)
+        box_sum = ttk.Labelframe(totals, text="Resumen", padding=6)
         box_sum.grid(row=0, column=2, sticky="nsew")
 
         def row(parent, r, label, var, style=None):
