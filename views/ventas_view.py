@@ -106,6 +106,36 @@ class SalesView:
                 self.root.grab_set()  # experiencia modal suave
             except Exception:
                 pass
+        else:
+            try:
+                self.root.state("zoomed")
+            except Exception:
+                pass
+
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
 
         try:
             self.root.state("zoomed")

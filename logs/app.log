@@ -501,3 +501,15 @@ TypeError: create_tables() takes 0 positional arguments but 1 was given
 2025-09-02 12:12:01,917 [INFO] root: Aplicación iniciada.
 2025-09-02 12:12:02,116 [INFO] root: Esquema de base de datos creado/migrado correctamente.
 2025-09-02 12:12:13,559 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 20:37:00,396 [INFO] root: Aplicación iniciada.
+2026-02-12 20:37:00,408 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 20:47:42,095 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 20:48:25,244 [INFO] root: Aplicación iniciada.
+2026-02-12 20:48:25,269 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 20:48:47,905 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 20:51:19,893 [INFO] root: Aplicación iniciada.
+2026-02-12 20:51:19,920 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 21:00:34,497 [INFO] root: Aplicación cerrada por usuario.
+2026-02-12 21:04:41,778 [INFO] root: Aplicación iniciada.
+2026-02-12 21:04:41,804 [INFO] root: Esquema de base de datos creado/migrado correctamente.
+2026-02-12 21:04:44,551 [INFO] root: Aplicación cerrada por usuario.
